@@ -1,5 +1,8 @@
 public class ChefStock extends ChefEquipe {
-    public ChefStock () {}
+
+    public ChefStock(String nom, String prenom) {
+        super(nom, prenom);
+    }
 
     public void ajouterLot(){}
 
