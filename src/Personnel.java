@@ -11,7 +11,6 @@ public abstract class Personnel {
         this.nom = nom;
         this.prenom = prenom;
     }
-    //public abstract double getSalaire();
 
     public int getIdentifiant() {
         return identifiant;
