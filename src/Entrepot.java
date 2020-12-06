@@ -96,7 +96,7 @@ public class Entrepot {
      * @author Zakaria Ybeggazene
      * @version 1.0
      * @see #chefsEquipe
-     * @see #rangerLot(Lot)
+     * @see #recevoirLot(Lot)
      * @see Personnel
      */
     public Personnel persoStockDispo() {
@@ -123,6 +123,40 @@ public class Entrepot {
         return personnel;
     }
 
+    /** Rend le premier membre disponible du <code>personnel</code> pouvant monter un meuble de type
+     * <code>specialite</code>.
+     * @return objet de type <code>Personnel</code> qui est le premier membre du personnel pouvant
+     * monter un meuble de type <code>specialite</code>, <code>null</code> sinon.
+     * @author Zakaria Ybeggazene
+     * @version 1.0
+     * @see #chefsEquipe
+     * @see #monterMeuble(Meuble)
+     * @see Personnel
+     */
+    public Personnel persoBricoDispo(PieceMaison specialite) {
+        boolean personnelDispo = false;
+        Personnel personnel = null;
+        Iterator<ChefEquipe> it = chefsEquipe.iterator();
+        while (it.hasNext() && !personnelDispo) {
+            ChefEquipe chefEquipe = it.next();
+            if(chefEquipe instanceof ChefBrico && chefEquipe.isDisponible()) {
+                personnelDispo = true;
+                personnel = chefEquipe;
+            }
+            else {
+                Ouvrier[] ouvriers = it.next().getEquipe();
+                for (int i = 0; i < 4; i++) {
+                    if (ouvriers[i] == null) break;
+                    else if (ouvriers[i].isDisponible() && ouvriers[i].getSpecialite().equals(specialite)) {
+                        personnelDispo = true;
+                        personnel = ouvriers[i];
+                    }
+                }
+            }
+        }
+        return personnel;
+    }
+
     /** Essaye de ranger <code>lot<code/> dans l'une des <code>rangee</code> de l'<code>entrepot</code>
      * s'il y a de l'espace contigu et du personnel.
      * @param lot le nouveau <code>lot</code> a receptionner
@@ -138,7 +172,7 @@ public class Entrepot {
      * @see Rangee#indiceRanger(Lot)
      * @see Rangee#rangerLot(Lot, int)
      */
-    public boolean rangerLot(Lot lot) {
+    public boolean recevoirLot(Lot lot) {
         //On verifie d'abord si on a le personnel
         Personnel personnel = persoStockDispo();
         if(personnel == null) {
@@ -161,6 +195,17 @@ public class Entrepot {
                 tabRangees[numRangee].rangerLot(lot, caseDebut);
                 return true;
             }
+        }
+    }
+
+    public boolean monterMeuble(Meuble meuble) {
+        //On verifie d''abord on le personnel
+        Personnel personnel = persoBricoDispo(meuble.getPieceMaison());
+        if(personnel == null) {
+            return false; //Si on n'a pas de personnel, la commande est refusee
+        } else {
+            //TODO
+            return false;
         }
     }
 }

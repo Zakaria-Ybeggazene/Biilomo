@@ -1,0 +1,6 @@
+1 rien
+2 lot vis 3.2 2.4 3
+3 lot vis 2.3 2.6 5
+4 lot clou 2.2 3.7 3
+5 lot clou 2.1 1.3 2
+6 meuble table CHAMBRE 3 vis 1 clou 2
