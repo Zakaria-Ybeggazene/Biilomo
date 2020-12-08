@@ -6,11 +6,11 @@ public class Entrepot {
     /**
      * Nombre de rangees dans l'entrepot.
      */
-    private static int m; //nombre de rangees
+    private int m; //nombre de rangees
     /**
      * Nombre d'intervalles dans chaque rangees (longueur en metres de chaque rangee).
      */
-    private static int n; //nombre d'intervalles
+    private int n; //nombre d'intervalles
 
     /**
      * Tresorerie de l'entrepot en double. Non nulle au depart.
@@ -31,15 +31,17 @@ public class Entrepot {
      * Constructeur de la classe <code>Entrepot</code> qui initialise la tresorerie
      * @param tresorerie la tresorerie initiale de l'<code>entrepot</code>.
      */
-    public Entrepot(double tresorerie) {
+    public Entrepot(int m, int n, double tresorerie) {
+        this.m = m;
+        this.n = n;
         this.tresorerie = tresorerie;
     }
 
-    public static int getM() {
+    public int getM() {
         return m;
     }
 
-    public static int getN() {
+    public int getN() {
         return n;
     }
 
@@ -47,12 +49,12 @@ public class Entrepot {
         return (ArrayList<ChefEquipe>) chefsEquipe.clone(); //revoir le clone
     }
 
-    public static void setM(int m) {
-        Entrepot.m = m;
+    public void setM(int m) {
+        this.m = m;
     }
 
-    public static void setN(int n) {
-        Entrepot.n = n;
+    public void setN(int n) {
+        this.n = n;
     }
 
     /** Affiche la <code>tresorerie</code> de l'<code>entrepot</code> et les <code>lots</code> contenus
@@ -169,7 +171,7 @@ public class Entrepot {
      * @see Rangee
      * @see Lot
      * @see Personnel
-     * @see Rangee#indiceRanger(Lot)
+     * @see Rangee#indiceRanger(Lot, int)
      * @see Rangee#rangerLot(Lot, int)
      */
     public boolean recevoirLot(Lot lot) {
@@ -182,7 +184,7 @@ public class Entrepot {
             int i = 0, caseDebut = 0;
             boolean espaceDispo = false;
             while(i < m && !espaceDispo) {
-                caseDebut = tabRangees[i].indiceRanger(lot);
+                caseDebut = tabRangees[i].indiceRanger(lot, n);
                 if(caseDebut != -1) espaceDispo = true;
                 i++;
             }
@@ -207,5 +209,9 @@ public class Entrepot {
             //TODO
             return false;
         }
+    }
+
+    public void recruterPersonnel(Personnel personnel) {
+        chefsEquipe.add((ChefEquipe) personnel);
     }
 }

@@ -5,11 +5,12 @@ public class Rangee {
 
     private int rangeeId;
     private HashMap<Lot, Integer> lotCaseMap = new HashMap<>();
-    private int[] tabLotId = new int[Entrepot.getN()];
+    private int[] tabLotId;
 
-    public Rangee() {
+    public Rangee(int n) {
         this.rangeeId = last_id++;
-        for (int i = 0; i < Entrepot.getN(); i++) tabLotId[i] = -1;
+        tabLotId = new int[n];
+        for (int i = 0; i < n; i++) tabLotId[i] = -1;
     }
 
     public int getRangeeId() {
@@ -30,9 +31,9 @@ public class Rangee {
      * @author Zakaria Ybeggazene
      * @version 1.0
      */
-    public int indiceRanger(Lot lot) {
+    public int indiceRanger(Lot lot, int n) {
         int space = 0, j = 0;
-        while (space != lot.getVolume() && j < Entrepot.getN()) {
+        while (space != lot.getVolume() && j < n) {
             if(tabLotId[j] == -1) space++;
             else space = 0;
             j++;
