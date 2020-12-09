@@ -2,15 +2,24 @@ import java.util.HashMap;
 
 public class Rangee {
     private static int last_id = 0;
+    private static int n;
 
     private int rangeeId;
     private HashMap<Lot, Integer> lotCaseMap = new HashMap<>();
     private int[] tabLotId;
 
-    public Rangee(int n) {
+    public Rangee() {
         this.rangeeId = last_id++;
-        tabLotId = new int[n];
-        for (int i = 0; i < n; i++) tabLotId[i] = -1;
+        tabLotId = new int[Rangee.n];
+        for (int i = 0; i < Rangee.n; i++) tabLotId[i] = -1;
+    }
+
+    public static int getN() {
+        return n;
+    }
+
+    public static void setN(int n) {
+        Rangee.n = n;
     }
 
     public int getRangeeId() {
@@ -31,9 +40,9 @@ public class Rangee {
      * @author Zakaria Ybeggazene
      * @version 1.0
      */
-    public int indiceRanger(Lot lot, int n) {
+    public int indiceRanger(Lot lot) {
         int space = 0, j = 0;
-        while (space != lot.getVolume() && j < n) {
+        while (space != lot.getVolume() && j < Rangee.n) {
             if(tabLotId[j] == -1) space++;
             else space = 0;
             j++;
@@ -50,5 +59,24 @@ public class Rangee {
     public void rangerLot(Lot lot, int caseDebut) {
         for (int i = 0; i < lot.getVolume(); i++) tabLotId[caseDebut+i] = lot.getLotId();
         lotCaseMap.put(lot, caseDebut);
+        System.out.println("RangeeID : "+ rangeeId);
+        for (int i = 0; i < n; i++) {
+            if(tabLotId[i] == -1) System.out.print("|  ");
+            else System.out.print("|"+String.format("%02d",tabLotId[i]));
+        }
+        System.out.println("|");
+    }
+
+    public boolean lotInitial(Lot lot, int caseDebut) {
+        int space = 0, j = 0;
+        while (space != lot.getVolume() && caseDebut+j < Rangee.n) {
+            if(tabLotId[caseDebut+j] == -1) space++;
+            else return false;
+            j++;
+        }
+        if(space == lot.getVolume()) {
+            rangerLot(lot, caseDebut);
+            return true;
+        } else return false;
     }
 }

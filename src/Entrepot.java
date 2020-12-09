@@ -25,7 +25,7 @@ public class Entrepot {
     /**
      * Tableau des m rangees de l'entrepot.
      */
-    private Rangee[] tabRangees = new Rangee[m];
+    private Rangee[] tabRangees;
 
     /**
      * Constructeur de la classe <code>Entrepot</code> qui initialise la tresorerie
@@ -35,6 +35,9 @@ public class Entrepot {
         this.m = m;
         this.n = n;
         this.tresorerie = tresorerie;
+        Rangee.setN(n);
+        tabRangees = new Rangee[m];
+        for (int i = 0; i < m; i++) tabRangees[i] = new Rangee();
     }
 
     public int getM() {
@@ -55,6 +58,10 @@ public class Entrepot {
 
     public void setN(int n) {
         this.n = n;
+    }
+
+    public Rangee getRangee(int idRangee) {
+        return tabRangees[idRangee];
     }
 
     /** Affiche la <code>tresorerie</code> de l'<code>entrepot</code> et les <code>lots</code> contenus
@@ -171,7 +178,7 @@ public class Entrepot {
      * @see Rangee
      * @see Lot
      * @see Personnel
-     * @see Rangee#indiceRanger(Lot, int)
+     * @see Rangee#indiceRanger(Lot)
      * @see Rangee#rangerLot(Lot, int)
      */
     public boolean recevoirLot(Lot lot) {
@@ -184,7 +191,7 @@ public class Entrepot {
             int i = 0, caseDebut = 0;
             boolean espaceDispo = false;
             while(i < m && !espaceDispo) {
-                caseDebut = tabRangees[i].indiceRanger(lot, n);
+                caseDebut = tabRangees[i].indiceRanger(lot);
                 if(caseDebut != -1) espaceDispo = true;
                 i++;
             }

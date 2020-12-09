@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Simulation {
@@ -48,75 +50,105 @@ public class Simulation {
         switch (mode) {
             case 1:
                 System.out.println("\u001B[34mVous avez choisi le mode console !\u001B[0m");
-                System.out.println("Vous allez maintenant specifier les conditions initiales de l'entrepot");
-                int m = Keyin.inInt("Nombre de rangees de depart (m) :\n>>", null);
-                int n = Keyin.inInt("Nombre d'intervalles de depart (n) :\n>>", null);
-                double tresorerie = Keyin.inDouble("Tresorerie de depart (en Euro) :\n>>");
-                Entrepot entrepot = new Entrepot(m, n, tresorerie);
-                System.out.println("Voulez-vous initialiser le personnel ?\n(1) Oui\t(2) Non");
-                int answer = Keyin.inInt(">>", Arrays.asList(1,2));
-                if(answer == 1) {
-                    while (answer == 1) {
-                        System.out.println("\u001B[34mCreer un chef d'equipe :\u001B[0m");
-                        Keyin.printPrompt("Entrez le nom du chef d'equipe :\n>>");
-                        String nom = Keyin.inString();
-                        Keyin.printPrompt("Entrez le prenom du chef d'equipe :\n>>");
-                        String prenom = Keyin.inString();
-                        System.out.println("Type du chef\n(1) Chef Stock\t(2) Chef Brico");
-                        int type = Keyin.inInt(">>", Arrays.asList(1,2));
-                        ChefEquipe chefEquipe;
-                        if(type == 1) chefEquipe = new ChefStock(nom, prenom);
-                        else chefEquipe = new ChefBrico(nom, prenom);
-                        System.out.println("Voulez-vous lui associer des ouvriers ?\n(1) Oui\t(2) Non");
-                        int ouvAns = Keyin.inInt(">>", Arrays.asList(1,2));
-                        if(ouvAns == 1) {
-                            int numOuv = 0;
-                            while (ouvAns == 1 && numOuv <= 4) {
-                                System.out.println("Creer un ouvrier dans l'equipe de "+chefEquipe.getNom()+
-                                        " "+chefEquipe.getPrenom()+" :");
-                                Keyin.printPrompt("Entrez le nom de l'ouvrier :\n>>");
-                                nom = Keyin.inString();
-                                Keyin.printPrompt("Entrez le prenom de l'ouvrier :\n>>");
-                                prenom = Keyin.inString();
-                                Keyin.printPrompt("Entrez la specialite de l'ouvrier parmi :" +
-                                        "\n('Cuisine', 'Chambre', 'Salle a Manger', 'Salon', 'Salle de bain', 'WC')\n");
-                                String specialite = Keyin.inString(Arrays.asList("CUISINE", "CHAMBRE", "SALLE A MANGER",
-                                        "SALON", "SALLE DE BAIN", "WC"));
-                                try {
-                                    chefEquipe.addOuvrier(new Ouvrier(nom, prenom, chefEquipe.getIdentifiant(),
-                                            PieceMaison.getPieceWhereNomIs(specialite.toUpperCase().trim())));
-                                } catch (IllegalArgumentException ex) {
-                                    System.out.println(ex.getMessage());
-                                }
-                                System.out.println("\u001B[34mL'ouvrier "+nom+" "+prenom+" a ete ajoute a l'equipe de "
-                                + chefEquipe.getNom() +" "+ chefEquipe.getPrenom() +"\u001B[0m");
-                                if(++numOuv != 4) {
-                                    System.out.println("Voulez-vous ajouter un autre ouvrier ?\n(1) Oui\t(2) Non");
-                                    ouvAns = Keyin.inInt(">>", Arrays.asList(1, 2));
-                                } else {
-                                    ouvAns = 2;
-                                    System.out.println("\u001B[34mEquipe complete !\u001B[0m");
-                                }
-                            }
-                        }
-                        entrepot.recruterPersonnel(chefEquipe);
-                        System.out.println("\u001B[34mLe chef d'equipe "+ chefEquipe.getNom() +" "
-                                + chefEquipe.getPrenom() +" a ete cree avec succes\u001B[0m");
-                        System.out.println("Vous-vous ajouter un autre chef d'equipe ?\n(1) Oui\t(2) Non");
-                        answer = Keyin.inInt(">>", Arrays.asList(1,2));
-                    }
-                }
-                System.out.println("Voulez-vous initialiser l'etat des rangees de l'entrepot ?\n(1) Oui\t(2) Non");
-                answer = Keyin.inInt(">>", Arrays.asList(1,2));
-                if(answer == 1) {
-                    while (answer == 1) {
-
-                    }
-                }
+                initSim();
                 break;
             case 2:
+                System.out.println("\u001B[34mVous avez choisi le mode fichier texte !\u001B[0m");
+                initSim();
                 break;
         }
+    }
+
+    private static void initSim() {
+        System.out.println("Vous allez maintenant specifier les conditions initiales de l'entrepot");
+        int m = Keyin.inInt("Nombre de rangees de depart (m) :\n>>", null);
+        int n = Keyin.inInt("Nombre d'intervalles de depart (n) :\n>>", null);
+        double tresorerie = Keyin.inDouble("Tresorerie de depart (en Euro) :\n>>");
+        Entrepot entrepot = new Entrepot(m, n, tresorerie);
+        System.out.println("Voulez-vous initialiser le personnel ?\n(1) Oui\t(2) Non");
+        int answer = Keyin.inInt(">>", Arrays.asList(1,2));
+        if(answer == 1) {
+            while (answer == 1) {
+                System.out.println("\u001B[34mCreer un chef d'equipe :\u001B[0m");
+                Keyin.printPrompt("Entrez le nom du chef d'equipe :\n>>");
+                String nom = Keyin.inString();
+                Keyin.printPrompt("Entrez le prenom du chef d'equipe :\n>>");
+                String prenom = Keyin.inString();
+                System.out.println("Type du chef\n(1) Chef Stock\t(2) Chef Brico");
+                int type = Keyin.inInt(">>", Arrays.asList(1,2));
+                ChefEquipe chefEquipe;
+                if(type == 1) chefEquipe = new ChefStock(nom, prenom);
+                else chefEquipe = new ChefBrico(nom, prenom);
+                System.out.println("Voulez-vous lui associer des ouvriers ?\n(1) Oui\t(2) Non");
+                int ouvAns = Keyin.inInt(">>", Arrays.asList(1,2));
+                if(ouvAns == 1) {
+                    int numOuv = 0;
+                    while (ouvAns == 1 && numOuv <= 4) {
+                        System.out.println("Creer un ouvrier dans l'equipe de "+chefEquipe.getNom()+
+                                " "+chefEquipe.getPrenom()+" :");
+                        Keyin.printPrompt("Entrez le nom de l'ouvrier :\n>>");
+                        nom = Keyin.inString();
+                        Keyin.printPrompt("Entrez le prenom de l'ouvrier :\n>>");
+                        prenom = Keyin.inString();
+                        Keyin.printPrompt("Entrez la specialite de l'ouvrier parmi :" +
+                                "\n('Cuisine', 'Chambre', 'Salle a Manger', 'Salon', 'Salle de bain', 'WC')\n");
+                        String specialite = Keyin.inString(Arrays.asList("CUISINE", "CHAMBRE", "SALLE A MANGER",
+                                "SALON", "SALLE DE BAIN", "WC"));
+                        try {
+                            chefEquipe.addOuvrier(new Ouvrier(nom, prenom, chefEquipe.getIdentifiant(),
+                                    PieceMaison.getPieceWhereNomIs(specialite.toUpperCase().trim())));
+                        } catch (IllegalArgumentException ex) {
+                            System.out.println(ex.getMessage());
+                        }
+                        System.out.println("\u001B[34mL'ouvrier "+nom+" "+prenom+" a ete ajoute a l'equipe de "
+                        + chefEquipe.getNom() +" "+ chefEquipe.getPrenom() +"\u001B[0m");
+                        if(++numOuv != 4) {
+                            System.out.println("Voulez-vous ajouter un autre ouvrier ?\n(1) Oui\t(2) Non");
+                            ouvAns = Keyin.inInt(">>", Arrays.asList(1, 2));
+                        } else {
+                            ouvAns = 2;
+                            System.out.println("\u001B[34mEquipe complete !\u001B[0m");
+                        }
+                    }
+                }
+                entrepot.recruterPersonnel(chefEquipe);
+                System.out.println("\u001B[34mLe chef d'equipe "+ chefEquipe.getNom() +" "
+                        + chefEquipe.getPrenom() +" a ete cree avec succes\u001B[0m");
+                System.out.println("Vous-vous ajouter un autre chef d'equipe ?\n(1) Oui\t(2) Non");
+                answer = Keyin.inInt(">>", Arrays.asList(1,2));
+            }
+        }
+        System.out.println("Voulez-vous initialiser l'etat des rangees de l'entrepot ?\n(1) Oui\t(2) Non");
+        answer = Keyin.inInt(">>", Arrays.asList(1,2));
+        if(answer == 1) {
+            while (answer == 1) {
+                System.out.println("\u001B[34mCreer un lot :\u001B[0m");
+                Keyin.printPrompt("Entrez le type (nom) du lot (premiere lettre en majuscule) :\n>>");
+                String nom = Keyin.inString();
+                int volume = Keyin.inInt("Entrez le volume du lot :\n>>", null);
+                double poids = Keyin.inDouble("Entrez le poids d'une unite de volume :\n>>");
+                double prix = Keyin.inDouble("Entrez le prix (en Euro) d'une unite de volume :\n>>");
+                Lot lot = new Lot(nom, volume, poids, prix);
+                boolean initPossible = false;
+                while (!initPossible) {
+                    int idRangee = Keyin.inInt("Entrez le numero (a partir de 0) de la rangee dans laquelle " +
+                                    "vous voulez que le lot soit initialisé :\n>>",
+                            IntStream.rangeClosed(0, entrepot.getM()-1).boxed().collect(Collectors.toList()));
+                    int caseDebut = Keyin.inInt("Entrez le numero (a partir de 0) de la case dans " +
+                                    "la rangee a partir de laquelle le lot sera stocke :\n>>",
+                            IntStream.rangeClosed(0, entrepot.getN()-1).boxed().collect(Collectors.toList()));
+                    initPossible = entrepot.getRangee(idRangee).lotInitial(lot, caseDebut);
+                    if(initPossible) System.out.println("\u001B[34mLe lot a ete initialise avec succes\u001B[0m");
+                    else System.out.println("\u001B[31mLe lot ne peut pas etre initialise a " +
+                            "l'emplacement choisi\u001B[0m");
+                }
+                System.out.println("Vous-vous ajouter un autre lot de depart ?\n(1) Oui\t(2) Non");
+                answer = Keyin.inInt(">>", Arrays.asList(1,2));
+            }
+        }
+        System.out.println("\u001B[34mVous avez initialise l'entrepot avec succès\u001B[0m");
+        System.out.print("Cliquez sur Entrer pour commencer la simulation ...");
+        Keyin.inString();
     }
 
     private static void launchFile(Entrepot e, String string) {
@@ -199,11 +231,17 @@ public class Simulation {
                 printPrompt(prompt);
                 try {
                     int i = Integer.parseInt(inString().trim());
-                    if(i <= 0) throw new IllegalArgumentException("\u001B[31mSaisie erronee." +
-                            " Valeur negative ou nulle\u001B[0m");
-                    else if(possibleValues != null && !possibleValues.contains(i))
-                        throw new IllegalArgumentException("\u001B[31mSaisie erronee. Valeur inattendue\u001B[0m");
-                    else return i;
+                    if(possibleValues != null) {
+                        if(!possibleValues.contains(i))
+                            throw new IllegalArgumentException("\u001B[31mSaisie erronee." +
+                                    " Valeur inattendue\u001B[0m");
+                        if (!possibleValues.contains(0) && i == 0)
+                            throw new IllegalArgumentException("\u001B[31mSaisie erronee." +
+                                " Valeur nulle\u001B[0m");
+                    } else if (i <= 0)
+                        throw new IllegalArgumentException("\u001B[31mSaisie erronee." +
+                                " Valeur negative ou nulle\u001B[0m");
+                    return i;
                 } catch (NumberFormatException e) {
                     System.out.println("\u001B[31mSaisie erronee. Pas un Integer\u001B[0m");
                 } catch (IllegalArgumentException e) {
