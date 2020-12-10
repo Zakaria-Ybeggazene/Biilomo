@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -42,25 +43,62 @@ public class Simulation {
     }
 
     private static void launchMenu() {
-        System.out.println("Bienvenue sur Biilomo !");
-        System.out.println("(Ecrivez \"quit()\" a tout moment pour quitter le programme)");
+        System.out.println("\u001B[36mBienvenue sur Biilomo !\u001B[0m");
+        System.out.println("\u001B[33m(Ecrivez \"quit()\" a tout moment pour quitter le programme)\u001B[0m");
+        Entrepot entrepot = initEntrepot();
         System.out.println("Veuillez choisir un mode :");
         System.out.println("(1) Mode console\t(2) Mode fichier texte");
         int mode = Keyin.inInt(">>", Arrays.asList(1,2));
         switch (mode) {
             case 1:
                 System.out.println("\u001B[34mVous avez choisi le mode console !\u001B[0m");
-                initSim();
+                int choice = 1;
+                int i = 0;
+                while (choice == 1) {
+                    System.out.println("---------\nTemps : "+i);
+                    System.out.println("Tresorerie actuelle : "+String.format("%,.2f€", entrepot.getTresorerie()));
+                    consigneModeConsole(entrepot);
+                    System.out.println("Paiement du personnel en cours...");
+                    entrepot.payerPersonnel();
+                    int action = 0;
+                    do {
+                        System.out.println("Actions possibles :\n" +
+                                "(1) Afficher inventaire\t" +
+                                "(2) Deplacer lot\t" +
+                                "(3) Supprimer lot\t\n" +
+                                "(4) Recruter un nouveau membre du personnel\t" +
+                                "(5) Licencier un membre du personnel\t\n" +
+                                "(0) Aucune des precedentes");
+                                action = Keyin.inInt(">>", Arrays.asList(0, 1, 2, 3, 4, 5));
+                        switch (action) {
+                            case 1:
+                                entrepot.inventaire();
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                break;
+                            case 5:
+                                break;
+                            default:
+                        }
+                    } while (action != 0);
+                    System.out.println("\u001B[34mChoisissez :\u001B[0m\n" +
+                            "(1) Passer au prochain pas de temps\t" +
+                            "(2) Arreter la simulation");
+                    choice = Keyin.inInt(">>", Arrays.asList(1,2));
+                }
                 break;
             case 2:
                 System.out.println("\u001B[34mVous avez choisi le mode fichier texte !\u001B[0m");
-                initSim();
                 break;
         }
     }
 
-    private static void initSim() {
-        System.out.println("Vous allez maintenant specifier les conditions initiales de l'entrepot");
+    private static Entrepot initEntrepot() {
+        System.out.println("\u001B[34mCommencez par specifier les conditions initiales de l'entrepot\u001B[0m");
         int m = Keyin.inInt("Nombre de rangees de depart (m) :\n>>", null);
         int n = Keyin.inInt("Nombre d'intervalles de depart (n) :\n>>", null);
         double tresorerie = Keyin.inDouble("Tresorerie de depart (en Euro) :\n>>");
@@ -124,7 +162,7 @@ public class Simulation {
             while (answer == 1) {
                 System.out.println("\u001B[34mCreer un lot :\u001B[0m");
                 Keyin.printPrompt("Entrez le type (nom) du lot (premiere lettre en majuscule) :\n>>");
-                String nom = Keyin.inString();
+                String nom = Keyin.inString().trim();
                 int volume = Keyin.inInt("Entrez le volume du lot :\n>>", null);
                 double poids = Keyin.inDouble("Entrez le poids d'une unite de volume :\n>>");
                 double prix = Keyin.inDouble("Entrez le prix (en Euro) d'une unite de volume :\n>>");
@@ -149,6 +187,63 @@ public class Simulation {
         System.out.println("\u001B[34mVous avez initialise l'entrepot avec succès\u001B[0m");
         System.out.print("Cliquez sur Entrer pour commencer la simulation ...");
         Keyin.inString();
+        return entrepot;
+    }
+
+    private static void consigneModeConsole(Entrepot entrepot) {
+        System.out.println("Consigne recue :\n(1) Nouveau Lot\t(2) Commande Meuble\t(3) Rien");
+        int cons = Keyin.inInt(">>", Arrays.asList(1,2,3));
+        switch (cons) {
+            case 1:
+                System.out.println("\u001B[34mCaracteristiques du lot a recevoir :\u001B[0m");
+                Keyin.printPrompt("Entrez le type (nom) du lot (premiere lettre en majuscule) :\n>>");
+                String nom = Keyin.inString();
+                int volume = Keyin.inInt("Entrez le volume du lot :\n>>", null);
+                double poids = Keyin.inDouble("Entrez le poids d'une unite de volume :\n>>");
+                double prix = Keyin.inDouble("Entrez le prix (en Euro) d'une unite de volume :\n>>");
+                boolean recu = entrepot.recevoirLot(new Lot(nom, volume, poids, prix));
+                System.out.println(recu);
+                //Do smth here or do it inside recevoirLot()
+                break;
+            case 2:
+                System.out.println("\u001B[34mCommande de meuble recue :\u001B[0m");
+                Keyin.printPrompt("Entrez le nom du meuble commande :\n>>");
+                String nomMeuble = Keyin.inString();
+                Keyin.printPrompt("Entrez la piece de la maison a laquelle est associe le meuble parmi :" +
+                        "\n('Cuisine', 'Chambre', 'Salle a Manger', 'Salon', 'Salle de bain', 'WC')\n");
+                String pieceMaison = Keyin.inString(Arrays.asList("CUISINE", "CHAMBRE", "SALLE A MANGER",
+                        "SALON", "SALLE DE BAIN", "WC"));
+                int dureeConst = Keyin.inInt("Entrez la duree de construction du meuble :\n>>", null);
+                System.out.println("Entrez la liste des lots et leurs volumes respectifs necessaires" +
+                        "a la construction du meuble");
+                int addEntry = 1;
+                HashMap<String, Integer> listeLots = new HashMap<>();
+                while (addEntry == 1) {
+                    Keyin.printPrompt("Entrez le type (nom) du lot (premiere lettre en majuscule) :\n>>");
+                    String type = Keyin.inString().trim();
+                    int quantite = Keyin.inInt("Entrez le volume necessaire :\n>>", null);
+                    listeLots.put(type, quantite);
+                    System.out.println("Vous-vous ajouter un autre lot de depart ?\n(1) Oui\t(2) Non");
+                    addEntry = Keyin.inInt(">>", Arrays.asList(1,2));
+                }
+                Meuble meuble = null;
+                try {
+                    meuble = new Meuble(nomMeuble,
+                            PieceMaison.getPieceWhereNomIs(pieceMaison.toUpperCase().trim()),
+                            dureeConst,
+                            listeLots);
+                } catch (IllegalArgumentException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                System.out.println("\u001B[34mCommande de meuble bien creee\u001B[0m");
+                boolean peutMonter = entrepot.monterMeuble(meuble);
+                System.out.println(peutMonter);
+                //do smth after monterMeuble() is done
+                break;
+            case 3:
+                System.out.println("\u001B[34mPas de consigne cette fois...\u001B[0m");
+                break;
+        }
     }
 
     private static void launchFile(Entrepot e, String string) {

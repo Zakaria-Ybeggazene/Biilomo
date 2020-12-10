@@ -48,6 +48,10 @@ public class Entrepot {
         return n;
     }
 
+    public double getTresorerie() {
+        return tresorerie;
+    }
+
     public ArrayList<ChefEquipe> getChefsEquipe() {
         return (ArrayList<ChefEquipe>) chefsEquipe.clone(); //revoir le clone
     }
@@ -70,10 +74,15 @@ public class Entrepot {
      * @version 1.0
      */
     public void inventaire() {
-        System.out.println("Tresorerie : "+this.tresorerie+"€");
+        System.out.println("Tresorerie : "+String.format("%,.2f€",this.tresorerie));
         System.out.println("L'entrepot possede "+m+" rangees de longueur "+n+" dont le contenu est le suivant :");
         for(int i=0; i<m; i++) {
             System.out.println("\nRangee N° "+i+" :");
+            for (int j = 0; j < n; j++) {
+                if (tabRangees[i].getTabLotId()[j] == -1) System.out.print("|  ");
+                else System.out.print("|" + String.format("%02d", tabRangees[i].getTabLotId()[j]));
+            }
+            System.out.println("|");
             for (Map.Entry<Lot, Integer> entry : tabRangees[i].getLotCaseMap().entrySet()) {
                 System.out.println("LotID : " + entry.getKey().getLotId() + "\nType:" + entry.getKey().getNom() +
                         "\nVolume : " + entry.getKey().getVolume() + "\nPoids unitaire : " +
@@ -90,11 +99,11 @@ public class Entrepot {
      */
     public void payerPersonnel() {
         for (ChefEquipe chef: chefsEquipe) {
-            this.tresorerie =- 10;
+            this.tresorerie -= 10;
             Ouvrier[] ouvriers = chef.getEquipe();
             for(int i = 0; i < 4; i++) {
                 if(ouvriers[i] == null) break;
-                else this.tresorerie =- 5;
+                else this.tresorerie -= 5;
             }
         }
     }

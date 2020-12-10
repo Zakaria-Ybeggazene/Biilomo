@@ -8,17 +8,15 @@ public class Meuble {
     private String nom; //represente le type du meuble ex : Table
     private PieceMaison pieceMaison;
     private int dureeConstruction;
-    private HashMap<String, Integer> listeLots = new HashMap<>();
+    private HashMap<String, Integer> listeLots;
 
     public Meuble(String nom, PieceMaison pieceMaison, int dureeConstruction,
-                  SimpleEntry<String, Integer> ... listeLots) {
+                  HashMap<String, Integer> listeLots) {
         this.meubleId = last_id++;
         this.nom = nom;
         this.pieceMaison = pieceMaison;
         this.dureeConstruction = dureeConstruction;
-        for (SimpleEntry<String, Integer> kv : listeLots) {
-            this.listeLots.put(kv.getKey(), kv.getValue());
-        }
+        this.listeLots = listeLots;
     }
 
     public int getMeubleId() {
