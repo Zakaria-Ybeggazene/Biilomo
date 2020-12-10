@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class Entrepot {
     /**
@@ -220,20 +217,86 @@ public class Entrepot {
         }
     }
 
+    public void deplacerLot(Lot lot) throws IllegalStateException {
+        //On verifie d'abord si on a le personnel necessaire au deplacement d'un lot (cad au moins une personne dispo)
+        Personnel personnel = persoStockDispo();
+        if (personnel == null) {
+            throw new IllegalStateException("\u001B[31mImpossible de deplacer le lot.\u001B[0m\n" +
+                    "Personnel apte a deplacer le lot : \u001B[31mIndisponible\u001B[0m");
+        } else {
+
+        }
+    }
+
     public void monterMeuble(Meuble meuble) throws IllegalStateException{
-        //On verifie d''abord on le personnel
+        //On verifie d'abord si on a le personnel disponible necessaire a la fabrication d'un meuble
         Personnel personnel = persoBricoDispo(meuble.getPieceMaison());
         if(personnel == null) {
             throw new IllegalStateException("\u001B[31mCommande de meuble rejetee.\u001B[0m\n" +
                     "Personnel apte a honnorer la commande : \u001B[31mIndisponible\u001B[0m");
-        } //Si on n'a pas de personnel, la commande est refusee
+        }
         else {
             //TODO
+
         }
     }
 
     public void recruterPersonnel(Personnel personnel) {
-        chefsEquipe.add((ChefEquipe) personnel);
+        System.out.println("Souhaitez-vous recruter un chef d'equipe ou un ouvrier?\n(1) Chef d'equipe\t(2) Ouvrier\n");
+        Integer nouveauPersonnel = Simulation.Keyin.inInt(">>", Arrays.asList(1, 2));
+
+        if (nouveauPersonnel == 1){
+            Simulation.Keyin.printPrompt("Entrez le nom du chef d'equipe a recruter :\n>>");
+            String nom = Simulation.Keyin.inString();
+            Simulation.Keyin.printPrompt("Entrez le prenom du chef d'equipe a recruter:\n>>");
+            String prenom = Simulation.Keyin.inString();
+            System.out.println("Type du chef\n(1) Chef Stock\t(2) Chef Brico");
+            int type = Simulation.Keyin.inInt(">>", Arrays.asList(1,2));
+            ChefEquipe chefEquipe;
+            if(type == 1) chefEquipe = new ChefStock(nom, prenom);
+            else chefEquipe = new ChefBrico(nom, prenom);
+            chefsEquipe.add((ChefEquipe) personnel);
+            System.out.println("\u001B[34mLe chef d'equipe "+ chefEquipe.getNom() +" "
+                    + chefEquipe.getPrenom() +" a ete recrute avec succes!\u001B[0m");
+
+        }
+        else{ // a revoir
+            System.out.println("Recruter un ouvrier dans l'equipe de: ");
+            chefsEquipe.get() = Simulation.Keyin.inString();
+            Simulation.Keyin.printPrompt("Entrez le nom de l'ouvrier a recruter :\n>>");
+            String nom = Simulation.Keyin.inString();
+            Simulation.Keyin.printPrompt("Entrez le prenom de l'ouvrier a recruter :\n>>");
+            String prenom = Simulation.Keyin.inString();
+            Simulation.Keyin.printPrompt("Entrez la specialite de l'ouvrier parmi :" +
+                    "\n('Cuisine', 'Chambre', 'Salle a Manger', 'Salon', 'Salle de bain', 'WC')\n");
+            String specialite = Simulation.Keyin.inString(Arrays.asList("CUISINE", "CHAMBRE", "SALLE A MANGER",
+                    "SALON", "SALLE DE BAIN", "WC"));
+            /* try {
+                chefEquipe.addOuvrier(new Ouvrier(nom, prenom, chefEquipe.getIdentifiant(),
+                        PieceMaison.getPieceWhereNomIs(specialite.toUpperCase().trim())));
+            } catch (IllegalArgumentException ex) {
+                System.out.println(ex.getMessage());
+            }
+            System.out.println("\u001B[34mL'ouvrier "+nom+" "+prenom+" a ete ajoute a l'equipe de "
+                    + chefEquipe.getNom() +" "+ chefEquipe.getPrenom() +"\u001B[0m");
+
+             */
+        }
+
+    }
+
+    public void licencierPersonnel (Personnel personnel){ // a revoir
+        System.out.println("Voulez-vous licencier un chef d'equipe ou un ouvrier?\n (1)Chef d'equipe\t(2)Ouvrier\n");
+        Integer personnelALicencier = Simulation.Keyin.inInt(">>", Arrays.asList(1, 2));
+        if (personnelALicencier == 1){
+            System.out.println("Quel est le nom du chef d'equipe que vous souhaitez licencier?");
+            String nom = Simulation.Keyin.inString();
+            chefsEquipe.remove(nom);
+        }
+
+        else{
+            //TODO
+        }
     }
 
     public void updatePersonnel() {
