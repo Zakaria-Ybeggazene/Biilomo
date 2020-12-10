@@ -85,6 +85,8 @@ public class Simulation {
                             default:
                         }
                     } while (action != 0);
+                    System.out.println("Mise a jour du personnel en cours...");
+                    entrepot.updatePersonnel(); //mettre a jour le personnel disponible
                     System.out.println("\u001B[34mChoisissez :\u001B[0m\n" +
                             "(1) Passer au prochain pas de temps\t" +
                             "(2) Arreter la simulation");
@@ -152,7 +154,7 @@ public class Simulation {
                 entrepot.recruterPersonnel(chefEquipe);
                 System.out.println("\u001B[34mLe chef d'equipe "+ chefEquipe.getNom() +" "
                         + chefEquipe.getPrenom() +" a ete cree avec succes\u001B[0m");
-                System.out.println("Vous-vous ajouter un autre chef d'equipe ?\n(1) Oui\t(2) Non");
+                System.out.println("Voulez-vous ajouter un autre chef d'equipe ?\n(1) Oui\t(2) Non");
                 answer = Keyin.inInt(">>", Arrays.asList(1,2));
             }
         }
@@ -180,7 +182,7 @@ public class Simulation {
                     else System.out.println("\u001B[31mLe lot ne peut pas etre initialise a " +
                             "l'emplacement choisi\u001B[0m");
                 }
-                System.out.println("Vous-vous ajouter un autre lot de depart ?\n(1) Oui\t(2) Non");
+                System.out.println("Voulez-vous ajouter un autre lot de depart ?\n(1) Oui\t(2) Non");
                 answer = Keyin.inInt(">>", Arrays.asList(1,2));
             }
         }
@@ -201,9 +203,12 @@ public class Simulation {
                 int volume = Keyin.inInt("Entrez le volume du lot :\n>>", null);
                 double poids = Keyin.inDouble("Entrez le poids d'une unite de volume :\n>>");
                 double prix = Keyin.inDouble("Entrez le prix (en Euro) d'une unite de volume :\n>>");
-                boolean recu = entrepot.recevoirLot(new Lot(nom, volume, poids, prix));
-                System.out.println(recu);
-                //Do smth here or do it inside recevoirLot()
+                try {
+                    entrepot.recevoirLot(new Lot(nom, volume, poids, prix));
+                    System.out.println("\u001B[34mLot recu avec succes\u001B[0m");
+                } catch (IllegalStateException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case 2:
                 System.out.println("\u001B[34mCommande de meuble recue :\u001B[0m");
@@ -215,7 +220,7 @@ public class Simulation {
                         "SALON", "SALLE DE BAIN", "WC"));
                 int dureeConst = Keyin.inInt("Entrez la duree de construction du meuble :\n>>", null);
                 System.out.println("Entrez la liste des lots et leurs volumes respectifs necessaires" +
-                        "a la construction du meuble");
+                        " a la construction du meuble");
                 int addEntry = 1;
                 HashMap<String, Integer> listeLots = new HashMap<>();
                 while (addEntry == 1) {
@@ -223,7 +228,8 @@ public class Simulation {
                     String type = Keyin.inString().trim();
                     int quantite = Keyin.inInt("Entrez le volume necessaire :\n>>", null);
                     listeLots.put(type, quantite);
-                    System.out.println("Vous-vous ajouter un autre lot de depart ?\n(1) Oui\t(2) Non");
+                    System.out.println("Voulez-vous ajouter un autre lot necessaire a la construction" +
+                            " du meuble ?\n(1) Oui\t(2) Non");
                     addEntry = Keyin.inInt(">>", Arrays.asList(1,2));
                 }
                 Meuble meuble = null;
@@ -235,13 +241,15 @@ public class Simulation {
                 } catch (IllegalArgumentException ex) {
                     System.out.println(ex.getMessage());
                 }
-                System.out.println("\u001B[34mCommande de meuble bien creee\u001B[0m");
-                boolean peutMonter = entrepot.monterMeuble(meuble);
-                System.out.println(peutMonter);
-                //do smth after monterMeuble() is done
+                try {
+                    entrepot.monterMeuble(meuble);
+                    System.out.println("\u001B[34mCommande de meuble acceptee\u001B[0m");
+                } catch (IllegalStateException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case 3:
-                System.out.println("\u001B[34mPas de consigne cette fois...\u001B[0m");
+                System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
                 break;
         }
     }

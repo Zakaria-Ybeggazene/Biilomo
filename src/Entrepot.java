@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -27,6 +28,8 @@ public class Entrepot {
      */
     private Rangee[] tabRangees;
 
+    private HashMap<Integer, Integer> persoIndispo = new HashMap<>();
+
     /**
      * Constructeur de la classe <code>Entrepot</code> qui initialise la tresorerie
      * @param tresorerie la tresorerie initiale de l'<code>entrepot</code>.
@@ -53,7 +56,7 @@ public class Entrepot {
     }
 
     public ArrayList<ChefEquipe> getChefsEquipe() {
-        return (ArrayList<ChefEquipe>) chefsEquipe.clone(); //revoir le clone
+        return (ArrayList<ChefEquipe>) chefsEquipe; //revoir le clone
     }
 
     public void setM(int m) {
@@ -84,11 +87,11 @@ public class Entrepot {
             }
             System.out.println("|");
             for (Map.Entry<Lot, Integer> entry : tabRangees[i].getLotCaseMap().entrySet()) {
-                System.out.println("LotID : " + entry.getKey().getLotId() + "\nType:" + entry.getKey().getNom() +
+                System.out.println("LotID : " + entry.getKey().getLotId() + "\nType : " + entry.getKey().getNom() +
                         "\nVolume : " + entry.getKey().getVolume() + "\nPoids unitaire : " +
-                        entry.getKey().getPoidsUnit() + "\nPrix unitaire : " + entry.getKey().getPrixUnit() +
-                        "\nPosition dans rangee : de " + entry.getValue() +" a " +
-                        entry.getValue() + entry.getKey().getVolume()+"\n--------------------------------------");
+                        entry.getKey().getPoidsUnit() + "\nPrix unitaire : " + String.format("%,.2f€",
+                        entry.getKey().getPrixUnit()) + "\nPosition dans rangee : de " + entry.getValue() +" a " +
+                        (entry.getValue() + entry.getKey().getVolume())+"\n--------------------------------------");
             }
         }
     }
@@ -123,15 +126,15 @@ public class Entrepot {
         Iterator<ChefEquipe> it = chefsEquipe.iterator();
         while (it.hasNext() && !personnelDispo) {
             ChefEquipe chefEquipe = it.next();
-            if(chefEquipe instanceof ChefStock && chefEquipe.isDisponible()) {
+            if(chefEquipe instanceof ChefStock && !persoIndispo.containsKey(chefEquipe.getIdentifiant())) {
                 personnelDispo = true;
                 personnel = chefEquipe;
             }
-            else {
+            else if(chefEquipe.getNumOuvriers() != 0){
                 Ouvrier[] ouvriers = it.next().getEquipe();
                 for (int i = 0; i < 4; i++) {
                     if (ouvriers[i] == null) break;
-                    else if (ouvriers[i].isDisponible()) {
+                    else if (!persoIndispo.containsKey(ouvriers[i].getIdentifiant())) {
                         personnelDispo = true;
                         personnel = ouvriers[i];
                     }
@@ -157,15 +160,15 @@ public class Entrepot {
         Iterator<ChefEquipe> it = chefsEquipe.iterator();
         while (it.hasNext() && !personnelDispo) {
             ChefEquipe chefEquipe = it.next();
-            if(chefEquipe instanceof ChefBrico && chefEquipe.isDisponible()) {
+            if(chefEquipe instanceof ChefBrico && !persoIndispo.containsKey(chefEquipe.getIdentifiant())) {
                 personnelDispo = true;
                 personnel = chefEquipe;
             }
-            else {
+            else if(chefEquipe.getNumOuvriers() != 0){
                 Ouvrier[] ouvriers = it.next().getEquipe();
                 for (int i = 0; i < 4; i++) {
                     if (ouvriers[i] == null) break;
-                    else if (ouvriers[i].isDisponible() && ouvriers[i].getSpecialite().equals(specialite)) {
+                    else if (!persoIndispo.containsKey(ouvriers[i].getIdentifiant()) && ouvriers[i].getSpecialite().equals(specialite)) {
                         personnelDispo = true;
                         personnel = ouvriers[i];
                     }
@@ -190,12 +193,13 @@ public class Entrepot {
      * @see Rangee#indiceRanger(Lot)
      * @see Rangee#rangerLot(Lot, int)
      */
-    public boolean recevoirLot(Lot lot) {
+    public void recevoirLot(Lot lot) throws IllegalStateException {
         //On verifie d'abord si on a le personnel
         Personnel personnel = persoStockDispo();
         if(personnel == null) {
-            return false;
-        } //Si on n'a pas de personnel, le lot est rejete, revenir vers cette partie
+            throw new IllegalStateException("\u001B[31mLot rejete.\u001B[0m\n" +
+                    "Personnel apte a recevoir le lot : \u001B[31mIndisponible\u001B[0m");
+        } //Si on n'a pas de personnel, le lot est rejete
         else { //On verifie si on a un espace contigu assez grand pour stocker le lot
             int i = 0, caseDebut = 0;
             boolean espaceDispo = false;
@@ -206,28 +210,38 @@ public class Entrepot {
             }
             int numRangee = i-1;
             if(!espaceDispo) {
-                return false;
-            } //Si on n'a pas l'espace contigu necessaire (on rejette le lot, voir comment faire)
+                throw new IllegalStateException("\u001B[31mLot rejete.\u001B[0m\n" +
+                        "Espace contigu necessaire pour recevoir le lot : \u001B[31mIndisponible\u001B[0m");
+            } //Si on n'a pas l'espace contigu necessaire
             else { //on stock le lot en reservant le membre du personnel et en placant le lot a la place trouvee
-                personnel.setDisponible(false);
+                persoIndispo.put(personnel.getIdentifiant(), 1);
                 tabRangees[numRangee].rangerLot(lot, caseDebut);
-                return true;
             }
         }
     }
 
-    public boolean monterMeuble(Meuble meuble) {
+    public void monterMeuble(Meuble meuble) throws IllegalStateException{
         //On verifie d''abord on le personnel
         Personnel personnel = persoBricoDispo(meuble.getPieceMaison());
         if(personnel == null) {
-            return false; //Si on n'a pas de personnel, la commande est refusee
-        } else {
+            throw new IllegalStateException("\u001B[31mCommande de meuble rejetee.\u001B[0m\n" +
+                    "Personnel apte a honnorer la commande : \u001B[31mIndisponible\u001B[0m");
+        } //Si on n'a pas de personnel, la commande est refusee
+        else {
             //TODO
-            return false;
         }
     }
 
     public void recruterPersonnel(Personnel personnel) {
         chefsEquipe.add((ChefEquipe) personnel);
+    }
+
+    public void updatePersonnel() {
+        Iterator<Map.Entry<Integer, Integer>> it = persoIndispo.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, Integer> pair = it.next();
+            if(pair.getValue() == 1) it.remove();
+            else pair.setValue(pair.getValue() - 1);
+        }
     }
 }

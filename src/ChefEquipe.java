@@ -1,4 +1,7 @@
 public abstract class ChefEquipe extends Personnel {
+    /**
+     * Nombre d'ouvriers associes au chef d'equipe
+     */
     private int numOuvriers = 0;
     /**
      * Tableau de 4 <code>Ouvriers</code> maximum.
@@ -11,6 +14,10 @@ public abstract class ChefEquipe extends Personnel {
 
     public Ouvrier[] getEquipe() {
         return equipe;
+    }
+
+    public int getNumOuvriers() {
+        return numOuvriers;
     }
 
     public void addOuvrier(Ouvrier ouvrier) {

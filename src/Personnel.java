@@ -4,7 +4,6 @@ public abstract class Personnel {
     private int identifiant;
     private String nom;
     private String prenom;
-    private boolean disponible = true;
 
     public Personnel (String nom, String prenom){
         this.identifiant = last_id++;
@@ -24,11 +23,4 @@ public abstract class Personnel {
         return prenom;
     }
 
-    public boolean isDisponible() {
-        return disponible;
-    }
-
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
-    }
 }

@@ -27,11 +27,11 @@ public class Rangee {
     }
 
     public HashMap<Lot, Integer> getLotCaseMap() {
-        return (HashMap<Lot, Integer>) lotCaseMap.clone();
+        return (HashMap<Lot, Integer>) lotCaseMap;
     }
 
     public int[] getTabLotId() {
-        return tabLotId.clone();
+        return tabLotId;
     }
 
     /** Trouve l'indice dans le tableau <code>tabLotId</code> ou on peut ranger <code>lot</code>.
@@ -47,7 +47,7 @@ public class Rangee {
             else space = 0;
             j++;
         }
-        return space == lot.getVolume() ? j - space - 1 : -1;
+        return space == lot.getVolume() ? j - space : -1;
     }
 
     /** Range le <code>lot<code/> dans cette rangee a la <code>caseDebut</code>.
