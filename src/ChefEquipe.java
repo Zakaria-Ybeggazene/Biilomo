@@ -21,8 +21,27 @@ public abstract class ChefEquipe extends Personnel {
     }
 
     public void addOuvrier(Ouvrier ouvrier) {
-        if(numOuvriers < 4) equipe[numOuvriers++] = ouvrier;
+        if(ouvrier != null && numOuvriers < 4) {
+            boolean placed = false;
+            int i = 0;
+            while (!placed && i < 4) {
+                if(equipe[i] == null) {
+                    equipe[i] = ouvrier;
+                    numOuvriers++;
+                    placed = true;
+                }
+                i++;
+            }
+        }
         else System.out.println("Nombre maximum d'ouvriers atteint !");
     }
 
+    public void removeOuvrier(int position) {
+        if(position >= 0 && position < 4) {
+            equipe[position] = null;
+            numOuvriers--;
+        } else System.out.println("ChefEquipe : removeOuvrier(int position) : position >= 4 ou position < 0");
+    }
 }
+
+

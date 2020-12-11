@@ -23,4 +23,7 @@ public abstract class Personnel {
         return prenom;
     }
 
+    public static int getLast_id() {
+        return last_id;
+    }
 }

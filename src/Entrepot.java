@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Entrepot {
     /**
@@ -52,8 +54,16 @@ public class Entrepot {
         return tresorerie;
     }
 
+    // retourne le premier chef d'equipe dont l'equipe n'est pas complete
+    public ChefEquipe getChefEqNonPleine() throws NullPointerException {
+        for (ChefEquipe chef: chefsEquipe) {
+            if(chef.getNumOuvriers() != 4) return chef;
+        }
+        throw new NullPointerException("\u001B[31mAucune equipe n'est disponible\u001B[0m");
+    }
+
     public ArrayList<ChefEquipe> getChefsEquipe() {
-        return (ArrayList<ChefEquipe>) chefsEquipe; //revoir le clone
+        return (ArrayList<ChefEquipe>) chefsEquipe;
     }
 
     public void setM(int m) {
@@ -74,6 +84,7 @@ public class Entrepot {
      * @version 1.0
      */
     public void inventaire() {
+        System.out.println("---------------------------------------------------------------");
         System.out.println("Tresorerie : "+String.format("%,.2f€",this.tresorerie));
         System.out.println("L'entrepot possede "+m+" rangees de longueur "+n+" dont le contenu est le suivant :");
         for(int i=0; i<m; i++) {
@@ -91,6 +102,7 @@ public class Entrepot {
                         (entry.getValue() + entry.getKey().getVolume())+"\n--------------------------------------");
             }
         }
+        System.out.println("---------------------------------------------------------------");
     }
 
     /** Appelee a la fin de chaque pas de temps pour payer tout le <code>personnel</code>.
@@ -241,64 +253,108 @@ public class Entrepot {
         }
     }
 
-    public void recruterPersonnel(Personnel personnel) {
-        System.out.println("Souhaitez-vous recruter un chef d'equipe ou un ouvrier?\n(1) Chef d'equipe\t(2) Ouvrier\n");
-        Integer nouveauPersonnel = Simulation.Keyin.inInt(">>", Arrays.asList(1, 2));
+    public void recruterChefEquipe(ChefEquipe chefEquipe) {
+        if(chefEquipe != null) chefsEquipe.add(chefEquipe);
+    }
 
-        if (nouveauPersonnel == 1){
-            Simulation.Keyin.printPrompt("Entrez le nom du chef d'equipe a recruter :\n>>");
-            String nom = Simulation.Keyin.inString();
-            Simulation.Keyin.printPrompt("Entrez le prenom du chef d'equipe a recruter:\n>>");
-            String prenom = Simulation.Keyin.inString();
-            System.out.println("Type du chef\n(1) Chef Stock\t(2) Chef Brico");
-            int type = Simulation.Keyin.inInt(">>", Arrays.asList(1,2));
-            ChefEquipe chefEquipe;
-            if(type == 1) chefEquipe = new ChefStock(nom, prenom);
-            else chefEquipe = new ChefBrico(nom, prenom);
-            chefsEquipe.add((ChefEquipe) personnel);
-            System.out.println("\u001B[34mLe chef d'equipe "+ chefEquipe.getNom() +" "
-                    + chefEquipe.getPrenom() +" a ete recrute avec succes!\u001B[0m");
-
-        }
-        else{ // a revoir
-            System.out.println("Recruter un ouvrier dans l'equipe de: ");
-            chefsEquipe.get() = Simulation.Keyin.inString();
-            Simulation.Keyin.printPrompt("Entrez le nom de l'ouvrier a recruter :\n>>");
-            String nom = Simulation.Keyin.inString();
-            Simulation.Keyin.printPrompt("Entrez le prenom de l'ouvrier a recruter :\n>>");
-            String prenom = Simulation.Keyin.inString();
-            Simulation.Keyin.printPrompt("Entrez la specialite de l'ouvrier parmi :" +
-                    "\n('Cuisine', 'Chambre', 'Salle a Manger', 'Salon', 'Salle de bain', 'WC')\n");
-            String specialite = Simulation.Keyin.inString(Arrays.asList("CUISINE", "CHAMBRE", "SALLE A MANGER",
-                    "SALON", "SALLE DE BAIN", "WC"));
-            /* try {
-                chefEquipe.addOuvrier(new Ouvrier(nom, prenom, chefEquipe.getIdentifiant(),
-                        PieceMaison.getPieceWhereNomIs(specialite.toUpperCase().trim())));
-            } catch (IllegalArgumentException ex) {
-                System.out.println(ex.getMessage());
+    public void licencierChefEquipe(int id, String nomPrenomChefEquipe) throws IllegalArgumentException {
+            boolean found = false;
+            Iterator<ChefEquipe> it = chefsEquipe.iterator();
+            while(!found && it.hasNext()) {
+                ChefEquipe chefEquipe = it.next();
+                if((id == 0 && (chefEquipe.getNom()+" "+chefEquipe.getPrenom()).equalsIgnoreCase(nomPrenomChefEquipe))
+                        || (id != 0 && chefEquipe.getIdentifiant() == id)) {
+                    found = true;
+                    if(chefEquipe.getNumOuvriers() != 0) {
+                        Ouvrier[] ouvriers = chefEquipe.getEquipe();
+                        for (int i = 0; i < 4; i++) {
+                            if(ouvriers[i] != null) {
+                                boolean isAssigned = false;
+                                Iterator<ChefEquipe> iterator = chefsEquipe.iterator();
+                                while (!isAssigned && iterator.hasNext()) {
+                                    ChefEquipe chefReciever = iterator.next();
+                                    if (chefReciever.getNumOuvriers() < 4) {
+                                        chefReciever.addOuvrier(ouvriers[i]);
+                                        isAssigned = true;
+                                    }
+                                }
+                                if(!isAssigned) System.out.println("\u001B[31mL'ouvrier "+ ouvriers[i].getNom() +" "+
+                                        ouvriers[i].getPrenom()+" ID : "+ ouvriers[i].getIdentifiant() +
+                                        ", n'a pas pu etre affecte a un autre chef d'equipe. Ouvrier licencie\u001B[0m");
+                            }
+                        }
+                    }
+                    chefsEquipe.remove(chefEquipe);
+                    if(id != 0) break;
+                }
             }
-            System.out.println("\u001B[34mL'ouvrier "+nom+" "+prenom+" a ete ajoute a l'equipe de "
-                    + chefEquipe.getNom() +" "+ chefEquipe.getPrenom() +"\u001B[0m");
-
-             */
-        }
-
+            if(!found) {
+                if(id == 0) throw new IllegalArgumentException("\u001B[31mLicenciement impossible.\n" +
+                    "Aucun chef d'equipe nomme \u001B[0m"+ nomPrenomChefEquipe +
+                    " \u001B[31mn'est disponible\u001B[0m");
+                else throw new IllegalArgumentException("\u001B[31mLicenciement impossible.\n" +
+                        "Aucun chef d'equipe avec l'identifiant \u001B[0m"+ id +
+                        " \u001B[31mn'est disponible\u001B[0m");
+            }
     }
 
-    public void licencierPersonnel (Personnel personnel){ // a revoir
-        System.out.println("Voulez-vous licencier un chef d'equipe ou un ouvrier?\n (1)Chef d'equipe\t(2)Ouvrier\n");
-        Integer personnelALicencier = Simulation.Keyin.inInt(">>", Arrays.asList(1, 2));
-        if (personnelALicencier == 1){
-            System.out.println("Quel est le nom du chef d'equipe que vous souhaitez licencier?");
-            String nom = Simulation.Keyin.inString();
-            chefsEquipe.remove(nom);
-        }
-
-        else{
-            //TODO
-        }
+    public void licencierOuvrier(int idChef, int idOuv, String nomPrenomOuvrier) throws IllegalArgumentException {
+            boolean chefFound = false;
+            boolean found = false;
+            Iterator<ChefEquipe> it = chefsEquipe.iterator();
+            while(!found && it.hasNext()) {
+                ChefEquipe chefEquipe = it.next();
+                if((idChef == 0 || chefEquipe.getIdentifiant() == idChef) && chefEquipe.getNumOuvriers() != 0) {
+                    Ouvrier[] ouvriers = chefEquipe.getEquipe();
+                    for(int i = 0; i < 4; i++) {
+                        if(ouvriers[i] != null) {
+                            if(idOuv != 0 && ouvriers[i].getIdentifiant() == idOuv) {
+                                found = true;
+                                chefEquipe.removeOuvrier(i);
+                            } else if(idOuv == 0 && (ouvriers[i].getNom()+" "+ouvriers[i].getPrenom()).equalsIgnoreCase(nomPrenomOuvrier)) {
+                                found = true;
+                                chefEquipe.removeOuvrier(i);
+                            }
+                        }
+                    }
+                }
+                if(idChef != 0 && chefEquipe.getIdentifiant() == idChef) {
+                    chefFound = true;
+                    break;
+                }
+            }
+            if(!found) {
+                if(!chefFound) throw new IllegalArgumentException("\u001B[31mLicenciement impossible.\n" +
+                    "Aucun chef d'equipe avec l'identifiant \u001B[0m"+ idChef +
+                    " \u001B[31mn'est disponible\u001B[0m");
+                else if(idOuv != 0) throw new IllegalArgumentException("\u001B[31mLicenciement impossible.\n" +
+                        "Aucun ouvrier avec l'identifiant \u001B[0m"+ idOuv +
+                        " \u001B[31mn'est disponible\u001B[0m");
+                else throw new IllegalArgumentException("\u001B[31mLicenciement impossible.\n" +
+                            "Aucun ouvrier nomme \u001B[0m"+ nomPrenomOuvrier +
+                            " \u001B[31mn'est disponible\u001B[0m");
+            }
     }
 
+    public void afficherPersonnel() {
+        System.out.println("---------------------------------------------------------------");
+        if(chefsEquipe.isEmpty()) System.out.println("\u001B[31mAucun membre du personnel a afficher\u001B[0m");
+        for (ChefEquipe chefEquipe : chefsEquipe) {
+            System.out.println(chefEquipe.getIdentifiant()+" "+chefEquipe.getNom()+" "+
+                    chefEquipe.getPrenom()+" : "+chefEquipe.getClass().getName()+" | # Ouvriers : "
+                    +chefEquipe.getNumOuvriers());
+            if(chefEquipe.getNumOuvriers() != 0) {
+                Ouvrier[] ouvriers = chefEquipe.getEquipe();
+                for (int i = 0; i < 4; i++) {
+                    if(ouvriers[i] != null) {
+                        System.out.println("|-- "+ouvriers[i].getIdentifiant()+" "+ouvriers[i].getNom()+" "+
+                                ouvriers[i].getPrenom()+" : "+ouvriers[i].getSpecialite().getNom());
+                    }
+                }
+            }
+        }
+        System.out.println("---------------------------------------------------------------");
+    }
     public void updatePersonnel() {
         Iterator<Map.Entry<Integer, Integer>> it = persoIndispo.entrySet().iterator();
         while (it.hasNext()) {
