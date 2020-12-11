@@ -99,7 +99,7 @@ public class Entrepot {
                         "\nVolume : " + entry.getKey().getVolume() + "\nPoids unitaire : " +
                         entry.getKey().getPoidsUnit() + "\nPrix unitaire : " + String.format("%,.2f€",
                         entry.getKey().getPrixUnit()) + "\nPosition dans rangee : de " + entry.getValue() +" a " +
-                        (entry.getValue() + entry.getKey().getVolume())+"\n--------------------------------------");
+                        (entry.getValue() + entry.getKey().getVolume() - 1)+"\n--------------------------------------");
             }
         }
         System.out.println("---------------------------------------------------------------");
@@ -248,7 +248,7 @@ public class Entrepot {
                     "Personnel apte a honnorer la commande : \u001B[31mIndisponible\u001B[0m");
         }
         else {
-            //TODO
+            HashMap<String, Integer> lotsNecessaires = meuble.getListeLots();
 
         }
     }

@@ -41,7 +41,8 @@ public class Simulation {
             case 2:
                 System.out.println("\u001B[34mVous avez choisi le mode fichier texte !\u001B[0m");
                 try {
-                    Keyin.printPrompt("Entrez le chemin du fichier de simulation :\n>>");
+                    Keyin.printPrompt("Entrez le chemin du fichier de simulation :\n" +
+                            "(\"src/Simulation.txt\" pour le fichier deja existant dans le projet)\n>>");
                     String chemin = Keyin.inString();
                     File file = new File(chemin);
                     Stream<String> s = Files.lines(file.toPath());
@@ -52,8 +53,9 @@ public class Simulation {
                         e.printStackTrace();
                     }
                     });
+                    System.out.println("\u001B[34mFin des consignes du fichier de simulation\nFin de la simulation.\u001B[0m");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("\u001B[31mUne erreur relative au fichier s'est produite.\u001B[0m");
                 }
                 break;
         }
@@ -215,13 +217,19 @@ public class Simulation {
     private static void parseConsigne(String s, Entrepot entrepot) throws IOException, IllegalArgumentException {
         try {
             String[] sTab = s.split(" ");
-            if(sTab.length < 2) throw new IllegalArgumentException("\u001B[31mFormat du fichier incorrecte\u001B[0m");
+            if(sTab.length < 2) throw new IllegalArgumentException("\u001B[31mFormat du fichier incorrect\u001B[0m");
             int consigneId = Integer.parseInt(sTab[0]);
+            System.out.println("---------\nTemps : "+(consigneId - 1));
+            System.out.println("Tresorerie actuelle : "+String.format("%,.2f€", entrepot.getTresorerie()));
             switch(sTab[1]) {
                 case "rien":
+                    System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
                     break;
                 case "lot":
-                    if(sTab.length != 6) throw new IllegalArgumentException("\u001B[31mFormat du fichier incorrecte\u001B[0m");
+                    if(sTab.length != 6) throw new IllegalArgumentException("\u001B[31mLigne : "+ s +"\nFormat du fichier incorrect\u001B[0m");
+                    Integer.parseInt(sTab[5]);
+                    Double.parseDouble(sTab[3]);
+                    Double.parseDouble(sTab[4]);
                     System.out.println("\u001B[34mCaracteristiques du lot a recevoir :\u001B[0m");
                     System.out.println("Le type (nom) du lot : "+sTab[2]);
                     System.out.println("Le volume du lot : "+sTab[5]);
@@ -246,27 +254,16 @@ public class Simulation {
 									Integer.valueOf(sTab[i+1]));
 					entrepot.commandeMeuble(meuble);*/
                 default:
-                    throw new IllegalArgumentException("\u001B[31mFormat du fichier incorrecte\u001B[0m");
+                    throw new IllegalArgumentException("\u001B[31mLigne : "+ s +"\nFormat du fichier incorrect\u001B[0m");
             }
         } catch (NumberFormatException e) {
-            System.out.println("\u001B[31mConsigneID errone. Pas un Integer\u001B[0m");
-        } catch(Exception e) {
-            throw new IOException("File format not correct");
+            System.out.println("\u001B[31mLigne : "+ s +"\nValeur attendue : Nombre (int ou double)\u001B[0m");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
-    }
-
-    //Delete after finishing parseConsigne
-    private static void launchFile(Entrepot e, String string) {
-        try {
-            File f= new File(string);
-            Stream<String> s = Files.lines(f.toPath());
-            s.forEach( l -> {try {
-                parseConsigne(l,e);
-            }
-            catch (IOException e1) {e1.printStackTrace();}});
-        }
-        catch(IOException ex) {
-            ex.getStackTrace();
+        catch(Exception e) {
+            e.printStackTrace();
+            //throw new IOException("Ligne : "+ s +"\n\u001B[31mFile format not correct\u001B[0m");
         }
     }
 
@@ -355,13 +352,12 @@ public class Simulation {
                                     entrepot.licencierChefEquipe(id, nomPrenomChefEquipe);
                                     System.out.println("Le chef d'equipe " + nomPrenomChefEquipe +
                                             " a ete licencie");
-                                    licenciement = true;
                                 } else {
                                     entrepot.licencierChefEquipe(id, null);
                                     System.out.println("Le chef d'equipe avec l'identifiant " +
                                             id + " a ete licencie");
-                                    licenciement = true;
                                 }
+                                licenciement = true;
                             } else { // personnelALicencier == 2
                                 int idChef = Keyin.inInt("Entrez l'identifiant du chef de l'ouvrier que vous souhaitez licencier :\n" +
                                                 "(Entrez 0 si vous ne le connaissez pas)\n>>",
@@ -378,13 +374,12 @@ public class Simulation {
                                     entrepot.licencierOuvrier(idChef, idOuv, nomPrenomOuvrier);
                                     System.out.println("L'ouvrier " + nomPrenomOuvrier +
                                             " a ete licencie");
-                                    licenciement = true;
                                 } else {
                                     entrepot.licencierOuvrier(idChef, idOuv, null);
                                     System.out.println("L'ouvrier avec l'identifiant " +
                                             idOuv + " a ete licencie");
-                                    licenciement = true;
                                 }
+                                licenciement = true;
                             }
                         } catch (IllegalArgumentException e) {
                             System.out.println(e.getMessage());

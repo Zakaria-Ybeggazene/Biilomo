@@ -34,4 +34,8 @@ public class Meuble {
     public int getDureeConstruction() {
         return dureeConstruction;
     }
+
+    public HashMap<String, Integer> getListeLots() {
+        return listeLots;
+    }
 }
