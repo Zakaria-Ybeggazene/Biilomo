@@ -7,6 +7,13 @@ public class Lot {
     private double poids; //d'une unite de volume
     private double prix; //d'une unite de volume
 
+    /**
+     * Constructeur de la classe <code>Lot</code>.
+     * @param nom nom du lot
+     * @param volume volume du lot
+     * @param poids poids du lot
+     * @param prix prix d'une unite de lot
+     */
     public Lot(String nom, int volume, double poids, double prix) {
         this.lotId = last_id++;
         this.nom = nom;

@@ -10,6 +10,13 @@ public class Meuble {
     private int dureeConstruction;
     private HashMap<String, Integer> listeLots;
 
+    /**
+     * Constructeur de la classe <code>Meuble</code>.
+     * @param nom
+     * @param pieceMaison
+     * @param dureeConstruction
+     * @param listeLots
+     */
     public Meuble(String nom, PieceMaison pieceMaison, int dureeConstruction,
                   HashMap<String, Integer> listeLots) {
         this.meubleId = last_id++;

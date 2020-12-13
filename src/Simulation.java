@@ -10,6 +10,10 @@ import java.util.stream.Stream;
 
 public class Simulation {
 
+    /**
+     * Execute la simulation de l'entrepot
+     * @param args - unused
+     */
     public static void main(String[] args) {
         launchBiilomo();
     }
@@ -61,6 +65,11 @@ public class Simulation {
         }
     }
 
+    /**
+     * Initialise les valeurs de depart de l'entrepot.
+     * @return un objet de type <code>Entrepot</code>
+     * @see {@link #Entrepot}
+     */
     private static Entrepot initEntrepot() {
         System.out.println("\u001B[34mCommencez par specifier les conditions initiales de l'entrepot\u001B[0m");
         int m = Keyin.inInt("Nombre de rangees de depart (m) :\n>>", null);
@@ -154,6 +163,10 @@ public class Simulation {
         return entrepot;
     }
 
+    /**
+     * Demande a l'utilisateur ce qu'il veut faire et execute la consigne.
+     * @param entrepot
+     */
     private static void consigneModeConsole(Entrepot entrepot) {
         System.out.println("Consigne recue :\n(1) Nouveau Lot\t(2) Commande Meuble\t(3) Rien");
         int cons = Keyin.inInt(">>", Arrays.asList(1,2,3));
@@ -267,6 +280,10 @@ public class Simulation {
         }
     }
 
+    /**
+     * Decrit toutes les possibilites de l'utilisateur a chaque pas de temps de la simulation.
+     * @param entrepot
+     */
     private static void actionsParPas(Entrepot entrepot) {
         System.out.println("Paiement du personnel en cours...");
         entrepot.payerPersonnel();
@@ -278,7 +295,7 @@ public class Simulation {
                     "(1) Afficher inventaire\t" +
                     "(2) Deplacer lot\t" +
                     "(3) Supprimer lot\t\n" +
-                    "(4) Affichier personnel\t" +
+                    "(4) Afficher personnel\t" +
                     "(5) Recruter un nouveau membre du personnel\t" +
                     "(6) Licencier un membre du personnel\t\n" +
                     "(0) Aucune des precedentes");
@@ -308,6 +325,7 @@ public class Simulation {
                             ChefEquipe chefEquipe;
                             if (type == 1) chefEquipe = new ChefStock(nom, prenom);
                             else chefEquipe = new ChefBrico(nom, prenom);
+
                             entrepot.recruterChefEquipe(chefEquipe);
                             System.out.println("\u001B[34mLe chef d'equipe " + chefEquipe.getNom() + " "
                                     + chefEquipe.getPrenom() + " a ete recrute avec succes\u001B[0m");
@@ -392,8 +410,8 @@ public class Simulation {
         System.out.println("Mise a jour du personnel en cours...");
         entrepot.updatePersonnel(); //mettre a jour le personnel disponible
     }
-    static class Keyin {
 
+    static class Keyin {
         //*******************************
         //   support methods
         //*******************************
