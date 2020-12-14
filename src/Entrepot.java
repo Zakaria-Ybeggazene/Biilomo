@@ -1,8 +1,4 @@
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Entrepot {
     /**
@@ -105,7 +101,6 @@ public class Entrepot {
      * @author Zakaria Ybeggazene
      * @version 1.0
      */
-    @Test
     public void inventaire() {
         System.out.println("---------------------------------------------------------------");
         System.out.println("Tresorerie : "+String.format("%,.2f€",this.tresorerie));
@@ -132,7 +127,6 @@ public class Entrepot {
      * @author Zakaria Ybeggazene
      * @version 1.0
      */
-    @Test
     public void payerPersonnel() {
         for (ChefEquipe chef: chefsEquipe) {
             this.tresorerie -= 10;
@@ -153,7 +147,6 @@ public class Entrepot {
      * @see #recevoirLot(Lot)
      * @see Personnel
      */
-    @Test
     public Personnel persoStockDispo() {
         boolean personnelDispo = false;
         Personnel personnel = null;
@@ -186,10 +179,8 @@ public class Entrepot {
      * @version 1.0
      * @see #chefsEquipe
      * @see #monterMeuble(Meuble)
-     * @see
-     * {@link #Personnel}
+     * @see Personnel
      */
-    @Test
     public Personnel persoBricoDispo(PieceMaison specialite) {
         boolean personnelDispo = false;
         Personnel personnel = null;
@@ -217,19 +208,17 @@ public class Entrepot {
     /** Essaye de ranger <code>lot<code/> dans l'une des <code>rangee</code> de l'<code>entrepot</code>
      * s'il y a de l'espace contigu et du personnel.
      * @param lot le nouveau <code>lot</code> a receptionner
-     * @return <code>true</code> si l'on a pu ranger le <code>lot</code>, <code>false</code> sinon
      * @author Zakaria Ybeggazene
      * @version 1.0
      * @see #chefsEquipe
      * @see #tabRangees
      * @see #persoStockDispo()
-     * @see {@link #Rangee}
-     * @see {@link #Lot}
-     * @see {@link #Personnel}
+     * @see Rangee
+     * @see Lot
+     * @see Personnel
      * @see Rangee#indiceRanger(Lot)
      * @see Rangee#rangerLot(Lot, int)
      */
-    @Test
     public void recevoirLot(Lot lot) throws IllegalStateException {
         //On verifie d'abord si on a le personnel
         Personnel personnel = persoStockDispo();
@@ -265,7 +254,6 @@ public class Entrepot {
      * @see Rangee
      *
      */
-    @Test
     public void deplacerLot(Lot lot) throws IllegalStateException {
         //On verifie d'abord si on a le personnel necessaire au deplacement d'un lot (cad au moins une personne dispo)
         Personnel personnel = persoStockDispo();
@@ -281,11 +269,10 @@ public class Entrepot {
 
     /**
      * Supprime un lot de l'entrepot, soit pour construire un meuble soit pour faire de la place.
-     * @param lot le <code>lot</code> a supprimer
+     * @param id l'identifiant du <code>lot</code> a supprimer
      * @throws IllegalStateException
      */
-    @Test
-    public void supprimerLot(int id, Lot lot) throws IllegalStateException{
+    public void supprimerLot(int id) throws IllegalStateException {
         //On verifie d'abord si on a le personnel necessaire
         Personnel personnel = persoStockDispo();
         if (personnel == null) {
@@ -296,13 +283,20 @@ public class Entrepot {
             boolean lotFound = false;
             for (int i=0; i<m; i++){
                 HashMap<Lot, Integer> lotCaseMap = tabRangees[i].getLotCaseMap();
-                for (Lot l : lotCaseMap.keySet()){
-                    if (tabRangees[lotCaseMap.get(l)] == id){
+                Iterator<Map.Entry<Lot, Integer>> iterator = lotCaseMap.entrySet().iterator();
+                while (iterator.hasNext() && !lotFound) {
+                    Map.Entry<Lot, Integer> entry = iterator.next();
+                    if (entry.getKey().getLotId() == id) {
                         lotFound = true;
+                        int indice = entry.getValue();
                         int[] tabLotId = tabRangees[i].getTabLotId();
-                        for (int j=0; j<lot.getVolume(); j++){ tabLotId[j] = -1; }
+                        for (int j = 0; j < entry.getKey().getVolume(); j++) {
+                            tabLotId[indice + j] = -1;
+                        }
                     }
-                }
+                    lotCaseMap.remove(entry.getKey(), entry.getValue());
+;                }
+                if(lotFound) break;
             }
             if (!lotFound) {throw new IllegalStateException("\u001B[31mImpossible de supprimer ce lot." +
                     "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m\n");}
@@ -315,7 +309,6 @@ public class Entrepot {
      * @param meuble
      * @throws IllegalStateException
      */
-    @Test
     public void monterMeuble(Meuble meuble) throws IllegalStateException{
         //On verifie d'abord si on a le personnel
         Personnel personnel = persoBricoDispo(meuble.getPieceMaison());
@@ -325,19 +318,35 @@ public class Entrepot {
         }
         else {
             // On verifie a present si on a le volume de lots necessaire
+            double prixMeuble = 0;
             HashMap<String, Integer> lotsNecessaires = meuble.getListeLots();
             boolean bonVolume = false;
-            for (String i : lotsNecessaires.keySet()){
+            HashMap<Lot, Integer> identifiantsVolumes = new HashMap<>();
+            for (Map.Entry<String, Integer> entry : lotsNecessaires.entrySet()) {
                 bonVolume = false;
                 int volumeNecessaire = 0;
                 for (int j=0; j<m; j++) {
-                    if (lotsNecessaires.get(i) == tabRangees[j]) { volumeNecessaire +=; }
+                    HashMap<Lot, Integer> lotCaseId = tabRangees[j].getLotCaseMap();
+                    for (Map.Entry<Lot, Integer> kv : lotCaseId.entrySet()) {
+                        if(kv.getKey().getNom().equals(entry.getKey())) {
+                            volumeNecessaire += kv.getKey().getVolume();
+                            identifiantsVolumes.put(kv.getKey(), entry.getValue());
+                            prixMeuble += kv.getKey().getPrixUnit() * entry.getValue();
+                        }
+                    }
+                    if (volumeNecessaire == entry.getValue()){
+                        bonVolume = true;
+                        break;
+                    }
                 }
-                if (volumeNecessaire == lotsNecessaires.get(i)){
-                    bonVolume = true;
-                }
+                if(!bonVolume) throw new IllegalStateException("\u001B[31mCommande de meuble rejetee.\u001B[0m\n" +
+                        "Volume necessaire pour le lot "+ entry.getKey() + " : \u001B[31mIndisponible\u001B[0m");
             }
-            if (bonVolume){supprimerLot();}
+            identifiantsVolumes.forEach((lot, volumeNecessaire) -> {
+                if(lot.getVolume() == volumeNecessaire) supprimerLot(lot.getLotId());
+                else reduireLot(lot.getLotId(), volumeNecessaire);
+            });
+            tresorerie += prixMeuble;
         }
     }
 
@@ -345,7 +354,6 @@ public class Entrepot {
      * Recrute un nouveau chef d'equipe en l'ajoutant a la liste des chefs d'equipe de l'entrepot.
      * @param chefEquipe la liste des chefs d'equipe
      */
-    @Test
     public void recruterChefEquipe(ChefEquipe chefEquipe) {
         if(chefEquipe != null) chefsEquipe.add(chefEquipe);
     }
@@ -359,7 +367,6 @@ public class Entrepot {
      * @param nomPrenomChefEquipe Le nom et le prenom d'un chef d'equipe
      * @throws IllegalArgumentException
      */
-    @Test
     public void licencierChefEquipe(int id, String nomPrenomChefEquipe) throws IllegalArgumentException {
             boolean found = false;
             Iterator<ChefEquipe> it = chefsEquipe.iterator();
@@ -408,10 +415,9 @@ public class Entrepot {
      * @param idOuv l'identifiant de l'ouvrier recherche
      * @param nomPrenomOuvrier le nom et le prenom de l'ouvrier recherche
      * @throws IllegalArgumentException
-     * @see #ChefEquipe
-     * @see #removeOuvrier
+     * @see ChefEquipe
+     * @see ChefEquipe#removeOuvrier(int)
      */
-    @Test
     public void licencierOuvrier(int idChef, int idOuv, String nomPrenomOuvrier) throws IllegalArgumentException {
             boolean chefFound = false;
             boolean found = false;
