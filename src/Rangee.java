@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Map;
 
 public class Rangee {
     private static int last_id = 0;
@@ -34,7 +35,7 @@ public class Rangee {
         return tabLotId;
     }
 
-    /** Trouve l'indice dans le tableau <code>tabLotId</code> ou on peut ranger <code>lot</code>.
+    /** Trouve le premier indice dans le tableau <code>tabLotId</code> ou on peut ranger <code>lot</code>.
      * @param lot le nouveau <code>lot</code> a receptionner
      * @return l'indice dans le tableau s'il y a de l'espace contigu, -1 sinon
      * @author Zakaria Ybeggazene
@@ -50,6 +51,15 @@ public class Rangee {
         return space == lot.getVolume() ? j - space : -1;
     }
 
+    //private method just for printing, used in methods below
+    private void printRangeeModifiee() {
+        System.out.println("RangeeID : "+ rangeeId);
+        for (int i = 0; i < n; i++) {
+            if(tabLotId[i] == -1) System.out.print("|  ");
+            else System.out.print("|"+String.format("%02d",tabLotId[i]));
+        }
+        System.out.println("|");
+    }
     /** Range le <code>lot<code/> dans cette rangee a la <code>caseDebut</code>.
      * @param lot le nouveau <code>lot</code> a receptionner
      * @param caseDebut case a partir de laquelle on commence a ranger le <code>lot</code>
@@ -59,12 +69,27 @@ public class Rangee {
     public void rangerLot(Lot lot, int caseDebut) {
         for (int i = 0; i < lot.getVolume(); i++) tabLotId[caseDebut+i] = lot.getLotId();
         lotCaseMap.put(lot, caseDebut);
-        System.out.println("RangeeID : "+ rangeeId);
-        for (int i = 0; i < n; i++) {
-            if(tabLotId[i] == -1) System.out.print("|  ");
-            else System.out.print("|"+String.format("%02d",tabLotId[i]));
+        printRangeeModifiee();
+    }
+
+    public void retirerLot(Lot lot, int caseDebut) {
+        for (int j = 0; j < lot.getVolume(); j++) tabLotId[caseDebut + j] = -1;
+        lotCaseMap.remove(lot, caseDebut);
+        printRangeeModifiee();
+    }
+
+    public void reduireLot(Lot lot, int caseDebut, int volumeAReduire) {
+        for (int j = 0; j < volumeAReduire; j++) {
+            tabLotId[caseDebut + j] = -1;
         }
-        System.out.println("|");
+        Lot lotAReduire = lot; //I don't think this alone will work, coz it needs a clone
+        lotAReduire = new Lot(lotAReduire.getNom(),
+                lotAReduire.getVolume() - volumeAReduire,
+                lotAReduire.getPoidsUnit(),
+                lotAReduire.getPrixUnit());
+        lotCaseMap.put(lotAReduire, caseDebut+volumeAReduire);
+        lotCaseMap.remove(lot, caseDebut);
+        printRangeeModifiee();
     }
 
     public boolean lotInitial(Lot lot, int caseDebut) {
@@ -78,5 +103,15 @@ public class Rangee {
             rangerLot(lot, caseDebut);
             return true;
         } else return false;
+    }
+
+    public boolean peutDeplacer(Lot lot, int caseDebut) {
+        int space = 0, j = 0;
+        while (space != lot.getVolume() && caseDebut+j < Rangee.n) {
+            if(tabLotId[caseDebut+j] == -1 || tabLotId[caseDebut+j] == lot.getLotId()) space++;
+            else return false;
+            j++;
+        }
+        return space == lot.getVolume();
     }
 }

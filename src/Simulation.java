@@ -11,13 +11,23 @@ import java.util.stream.Stream;
 public class Simulation {
 
     /**
-     * Execute la simulation de l'entrepot.
+     * Execute la simulation de l'entrepot en appelant <code>launchBiilomo()</code>.
      * @param args - unused
+     * @see #launchBiilomo()
      */
     public static void main(String[] args) {
         launchBiilomo();
     }
 
+    /**
+     * Appelee au debut du programme. Elle initialise l'entrepot, fait choisir le mode a l'utilisateur (mode console
+     * ou mode fichier texte) et pour chaque mode elle execute une consigne par pas de temps et plusieurs actions
+     * peuvent suivre la consigne.
+     * @see #initEntrepot()
+     * @see #consigneModeConsole(Entrepot)
+     * @see #parseConsigne(String, Entrepot)
+     * @see #actionsParPas(Entrepot)
+     */
     private static void launchBiilomo() {
         System.out.println("\u001B[36mBienvenue sur Biilomo !\u001B[0m");
         System.out.println("\u001B[33m(Ecrivez \"quit()\" a tout moment pour quitter le programme)\u001B[0m");
@@ -50,12 +60,9 @@ public class Simulation {
                     String chemin = Keyin.inString();
                     File file = new File(chemin);
                     Stream<String> s = Files.lines(file.toPath());
-                    s.forEach(l -> {try {
+                    s.forEach(l -> {
                         parseConsigne(l, entrepot);
                         actionsParPas(entrepot);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     });
                     System.out.println("\u001B[34mFin des consignes du fichier de simulation\nFin de la simulation.\u001B[0m");
                 } catch (IOException e) {
@@ -66,9 +73,10 @@ public class Simulation {
     }
 
     /**
-     * Initialise les valeurs de depart de l'entrepot.
-     * @return un objet de type <code>Entrepot</code>
+     * Initialise les valeurs de depart de l'entrepot. Appelee par <code>launchBiilomo()</code>
+     * @return une instance de <code>Entrepot</code> initialisee comme indique par l'utilisateur
      * @see Entrepot
+     * @see #launchBiilomo()
      */
     private static Entrepot initEntrepot() {
         System.out.println("\u001B[34mCommencez par specifier les conditions initiales de l'entrepot\u001B[0m");
@@ -164,9 +172,10 @@ public class Simulation {
     }
 
     /**
-     * Demande a l'utilisateur ce qu'il veut faire puis execute la consigne.
-     * @param entrepot l'entrepot
+     * Demande a l'utilisateur ce qu'il veut faire dans la console et execute la consigne (mode console).
+     * @param entrepot l'instance de <code>Entrepot</code>
      * @see Entrepot
+     * @see #launchBiilomo()
      */
     private static void consigneModeConsole(Entrepot entrepot) {
         System.out.println("Consigne recue :\n(1) Nouveau Lot\t(2) Commande Meuble\t(3) Rien");
@@ -227,17 +236,16 @@ public class Simulation {
                 break;
         }
     }
-
     /**
-     *
-     * @param s
-     * @param entrepot
-     * @throws IOException
-     * @throws IllegalArgumentException
+     * Interprete une ligne du fichier de simulation comme une consigne et l'execute (mode fichier texte).
+     * @param line une ligne du fichier de simulation
+     * @param entrepot l'instance de <code>Entrepot</code>
+     * @see Entrepot
+     * @see #launchBiilomo()
      */
-    private static void parseConsigne(String s, Entrepot entrepot) throws IOException, IllegalArgumentException {
+    private static void parseConsigne(String line, Entrepot entrepot) {
         try {
-            String[] sTab = s.split(" ");
+            String[] sTab = line.split(" ");
             if(sTab.length < 2) throw new IllegalArgumentException("\u001B[31mFormat du fichier incorrect\u001B[0m");
             int consigneId = Integer.parseInt(sTab[0]);
             System.out.println("---------\nTemps : "+(consigneId - 1));
@@ -247,7 +255,7 @@ public class Simulation {
                     System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
                     break;
                 case "lot":
-                    if(sTab.length != 6) throw new IllegalArgumentException("\u001B[31mLigne : "+ s +"\nFormat du fichier incorrect\u001B[0m");
+                    if(sTab.length != 6) throw new IllegalArgumentException("\u001B[31mLigne : "+ line +"\nFormat du fichier incorrect\u001B[0m");
                     Integer.parseInt(sTab[5]);
                     Double.parseDouble(sTab[3]);
                     Double.parseDouble(sTab[4]);
@@ -267,31 +275,51 @@ public class Simulation {
                     }
                     break;
                 case "meuble":
-					/*Meuble meuble = new Meuble(sTab[2],
-						PieceMaison.valueOf(sTab[3]),
-						Integer.valueOf(sTab[4]));
-					for(int i = 5; i < sTab.length;i+=2)
-						meuble.addToComposition(sTab[i],
-									Integer.valueOf(sTab[i+1]));
-					entrepot.commandeMeuble(meuble);*/
+                    if(sTab.length < 7 || sTab.length % 2 == 0) throw new IllegalArgumentException("\u001B[31mLigne : "
+                            + line +"\nFormat du fichier incorrect\u001B[0m");
+                    Integer.parseInt(sTab[4]);
+                    for (int i = 6; i < sTab.length; i+=2) {
+                        Integer.parseInt(sTab[i]);
+                    }
+                    System.out.println("\u001B[34mCommande de meuble recue :\u001B[0m");
+                    System.out.println("Nom (type) : "+sTab[2]);
+                    System.out.println("Piece de la maison a laquelle il est associe : "+sTab[3]);
+                    System.out.println("Duree de construction (en pas de temps) : "+sTab[4]);
+                    System.out.println("Lots necessaires a sa construction :");
+                    HashMap<String, Integer> listeLots = new HashMap<>();
+                    for (int i = 5; i < sTab.length; i+=2) {
+                        listeLots.put(sTab[i], Integer.parseInt(sTab[i+1]));
+                        System.out.println("{Type : \""+sTab[i]+"\" ; Qt : \""+sTab[i+1]+"\"}");
+                    }
+					try {
+					    entrepot.monterMeuble(new Meuble(sTab[2],
+                                PieceMaison.getPieceWhereNomIs(sTab[3]),
+                                Integer.parseInt(sTab[4]),
+                                listeLots));
+                        System.out.println("\u001B[34mCommande de meuble acceptee\u001B[0m");
+                    } catch (IllegalStateException e) {
+					    System.out.println(e.getMessage());
+                    }
+					break;
                 default:
-                    throw new IllegalArgumentException("\u001B[31mLigne : "+ s +"\nFormat du fichier incorrect\u001B[0m");
+                    throw new IllegalArgumentException("\u001B[31mLigne : "+ line +"\nFormat du fichier incorrect\u001B[0m");
             }
         } catch (NumberFormatException e) {
-            System.out.println("\u001B[31mLigne : "+ s +"\nValeur attendue : Nombre (int ou double)\u001B[0m");
+            System.out.println("\u001B[31mLigne : "+ line +"\nValeur attendue : Nombre (int ou double)\u001B[0m");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
         catch(Exception e) {
             e.printStackTrace();
-            //throw new IOException("Ligne : "+ s +"\n\u001B[31mFile format not correct\u001B[0m");
+            //throw new IOException("Ligne : "+ line +"\n\u001B[31mFile format not correct\u001B[0m");
         }
     }
 
     /**
-     * Decrit toutes les possibilites de l'utilisateur a chaque pas de temps de la simulation.
-     * @param entrepot l'entrepot
+     * Decrit toutes les possibilites de l'utilisateur a chaque pas de temps de la simulation (dans les deux modes).
+     * @param entrepot l'instance de <code>Entrepot</code>
      * @see Entrepot
+     * @see #launchBiilomo()
      */
     private static void actionsParPas(Entrepot entrepot) {
         System.out.println("Paiement du personnel en cours...");
@@ -316,6 +344,8 @@ public class Simulation {
                 case 2:
                     break;
                 case 3:
+                    int idASupp = 0;
+                    entrepot.supprimerLot(idASupp);
                     break;
                 case 4:
                     entrepot.afficherPersonnel();
@@ -434,7 +464,6 @@ public class Simulation {
         //input stream
         static void inputFlush() {
             int dummy;
-
             try {
                 while ((System.in.available()) != 0)
                     dummy = System.in.read();

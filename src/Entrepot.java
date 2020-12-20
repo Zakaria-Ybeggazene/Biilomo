@@ -68,13 +68,14 @@ public class Entrepot {
     /**
      * Retourne le premier chef equipe dont l'equipe n'est pas complete.
      * @return un objet de type <code>ChefEquipe</code>.
-     * @throws NullPointerException
+     * @throws IllegalStateException Si aucun chef d'equipe ne possede une equipe non pleine
+     * @see ChefEquipe
      */
-    public ChefEquipe getChefEqNonPleine() throws NullPointerException {
+    public ChefEquipe getChefEqNonPleine() throws IllegalStateException {
         for (ChefEquipe chef: chefsEquipe) {
             if(chef.getNumOuvriers() != 4) return chef;
         }
-        throw new NullPointerException("\u001B[31mAucune equipe n'est disponible\u001B[0m");
+        throw new IllegalStateException("\u001B[31mAucune equipe n'est disponible\u001B[0m");
     }
 
     /**
@@ -159,7 +160,7 @@ public class Entrepot {
                 personnel = chefEquipe;
             }
             else if(chefEquipe.getNumOuvriers() != 0){
-                Ouvrier[] ouvriers = it.next().getEquipe();
+                Ouvrier[] ouvriers = chefEquipe.getEquipe();
                 for (int i = 0; i < 4; i++) {
                     if (ouvriers[i] == null) break;
                     else if (!persoIndispo.containsKey(ouvriers[i].getIdentifiant())) {
@@ -193,7 +194,7 @@ public class Entrepot {
                 personnel = chefEquipe;
             }
             else if(chefEquipe.getNumOuvriers() != 0){
-                Ouvrier[] ouvriers = it.next().getEquipe();
+                Ouvrier[] ouvriers = chefEquipe.getEquipe();
                 for (int i = 0; i < 4; i++) {
                     if (ouvriers[i] == null) break;
                     else if (!persoIndispo.containsKey(ouvriers[i].getIdentifiant()) && ouvriers[i].getSpecialite().equals(specialite)) {
@@ -249,21 +250,43 @@ public class Entrepot {
 
     /**
      * Essaye de deplacer le lot d'un endroit a un autre de l'entrepot afin de creer de l'espace contigu.
-     * @param lot le <code>lot</code> a deplacer
-     * @throws IllegalStateException
+     * @param id identifiant du <code>lot</code> a deplacer
+     * @param numRangee indice dans <code>tabRangees</code> de la rangee vers laquelle on veut deplacer le <code>lot</code>
+     * @param emplacementRangee indice dans la rangee de l'emplacement vers lequel on veut deplacer le <code>lot</code>
+     * @throws IllegalStateException Si le personnel est indisponible, impossible de deplacer vers l'emplacement specifie ou
+     * l'identifiant <code>id</code> ne correspond a aucun lot.
      * @see Lot
      * @see Rangee
-     *
+     * @see Simulation
      */
-    public void deplacerLot(Lot lot) throws IllegalStateException {
-        //On verifie d'abord si on a le personnel necessaire au deplacement d'un lot (cad au moins une personne dispo)
+    public void deplacerLot(int id, int numRangee, int emplacementRangee) throws IllegalStateException {
+        //On verifie d'abord si on a le personnel
         Personnel personnel = persoStockDispo();
         if (personnel == null) {
             throw new IllegalStateException("\u001B[31mImpossible de deplacer le lot.\u001B[0m\n" +
                     "Personnel apte a deplacer le lot : \u001B[31mIndisponible\u001B[0m");
         }
         else {
-
+            boolean lotFound = false;
+            for (int i=0; i<m; i++){
+                HashMap<Lot, Integer> lotCaseMap = tabRangees[i].getLotCaseMap();
+                Iterator<Map.Entry<Lot, Integer>> iterator = lotCaseMap.entrySet().iterator();
+                while (iterator.hasNext() && !lotFound) {
+                    Map.Entry<Lot, Integer> entry = iterator.next();
+                    if (entry.getKey().getLotId() == id) {
+                        lotFound = true;
+                        if(tabRangees[numRangee].peutDeplacer(entry.getKey(), emplacementRangee)) {
+                            persoIndispo.put(personnel.getIdentifiant(), 1);
+                            tabRangees[numRangee].rangerLot(entry.getKey(), emplacementRangee);
+                            tabRangees[i].retirerLot(entry.getKey(), entry.getValue());
+                        } else throw new IllegalStateException("\u001B[31mImpossible de deplacer ce lot vers " +
+                                "la rangee "+ numRangee +" a l'emplacement "+ emplacementRangee +".\u001B[0m");
+                    }
+                }
+                if(lotFound) break;
+            }
+            if (!lotFound) throw new IllegalStateException("\u001B[31mImpossible de deplacer ce lot." +
+                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
         }
     }
 
@@ -271,8 +294,10 @@ public class Entrepot {
     /**
      * Supprime un lot de l'entrepot, soit pour construire un meuble soit pour faire de la place.
      * @param id l'identifiant du <code>lot</code> a supprimer
-     * @throws IllegalStateException
+     * @throws IllegalStateException Si personnel indisponible ou l'identifiant <code>id</code> ne correspond a aucun lot.
      * @see Lot
+     * @see Rangee
+     * @see Simulation
      */
     public void supprimerLot(int id) throws IllegalStateException {
         //On verifie d'abord si on a le personnel necessaire
@@ -290,26 +315,26 @@ public class Entrepot {
                     Map.Entry<Lot, Integer> entry = iterator.next();
                     if (entry.getKey().getLotId() == id) {
                         lotFound = true;
-                        int indice = entry.getValue();
-                        int[] tabLotId = tabRangees[i].getTabLotId();
-                        for (int j = 0; j < entry.getKey().getVolume(); j++) {
-                            tabLotId[indice + j] = -1;
-                        }
+                        persoIndispo.put(personnel.getIdentifiant(), 1);
+                        tabRangees[i].retirerLot(entry.getKey(), entry.getValue());
                     }
-                    lotCaseMap.remove(entry.getKey(), entry.getValue());
-;                }
+                }
                 if(lotFound) break;
             }
-            if (!lotFound) {throw new IllegalStateException("\u001B[31mImpossible de supprimer ce lot." +
-                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m\n");}
+            if (!lotFound) throw new IllegalStateException("\u001B[31mImpossible de supprimer ce lot." +
+                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
         }
     }
 
     /**
-     * Reduit le volume d'un meuble dans l'entrepot. Cette methode est utilisee dans <code>monterMeuble</code> 
+     * Reduit le volume d'un meuble dans l'entrepot. Cette methode est utilisee dans <code>monterMeuble()</code>.
      * @param id l'identifiant du meuble a reduire
-     * @throws IllegalStateException
+     * @param volumeAReduire le nombre d'unites de volume a reduire du <code>lot</code> avec l'identifiant <code>id</code> a partir du debut
+     * @throws IllegalStateException Si le personnel est indisponible ou l'identifiant <code>id</code> ne correspond a aucun lot.
      * @see #monterMeuble(Meuble)
+     * @see Lot
+     * @see Rangee
+     * @see Simulation
      */
     public void reduireLot(int id, int volumeAReduire) throws IllegalStateException{
         //On verifie d'abord si on a le personnel necessaire
@@ -327,18 +352,14 @@ public class Entrepot {
                     Map.Entry<Lot, Integer> entry = iterator.next();
                     if (entry.getKey().getLotId() == id) {
                         lotFound = true;
-                        int indice = entry.getValue();
-                        int[] tabLotId = tabRangees[i].getTabLotId();
-                        for (int j = 0; j < volumeAReduire; j++) {
-                            tabLotId[indice + j] = -1;
-                        }
+                        persoIndispo.put(personnel.getIdentifiant(), 1);
+                        tabRangees[i].reduireLot(entry.getKey(), entry.getValue(), volumeAReduire);
                     }
-                    lotCaseMap.remove(entry.getKey(), entry.getValue());
                 }
                 if(lotFound) break;
             }
-            if (!lotFound) {throw new IllegalStateException("\u001B[31mImpossible de réduire ce lot." +
-                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m\n");}
+            if (!lotFound) throw new IllegalStateException("\u001B[31mImpossible de réduire ce lot." +
+                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
         }
     }
 
@@ -346,10 +367,16 @@ public class Entrepot {
      * Verifie si on a le personnel et les lots necessaires a la fabrication d'un meuble.
      * Si c'est le cas, alors le meuble est construit et les lots utilises sont supprimés de l'entrepot.
      * @param meuble le meuble a monter
-     * @throws IllegalStateException
+     * @throws IllegalStateException Si les lots necessaires a la construction du <code>meuble</code> ne sont pas satisfaits
+     * ou si le personnel qui peut monter le meuble et supprimer/reduire les lots retrouves est indisponible
      * @see Meuble
+     * @see Rangee
+     * @see Lot
+     * @see Simulation
+     * @see #supprimerLot(int)
+     * @see #reduireLot(int, int)
      */
-    public void monterMeuble(Meuble meuble) throws IllegalStateException{
+    public void monterMeuble(Meuble meuble) throws IllegalStateException {
         //On verifie d'abord si on a le personnel
         Personnel personnel = persoBricoDispo(meuble.getPieceMaison());
         if(personnel == null) {
@@ -360,21 +387,23 @@ public class Entrepot {
             // On verifie a present si on a le volume de lots necessaire
             double prixMeuble = 0;
             HashMap<String, Integer> lotsNecessaires = meuble.getListeLots();
-            boolean bonVolume = false;
-            HashMap<Lot, Integer> identifiantsVolumes = new HashMap<>();
+            boolean bonVolume;
+            HashMap<Lot, Integer> idLotVolume = new HashMap<>();
             for (Map.Entry<String, Integer> entry : lotsNecessaires.entrySet()) {
                 bonVolume = false;
                 int volumeNecessaire = 0;
                 for (int j=0; j<m; j++) {
-                    HashMap<Lot, Integer> lotCaseId = tabRangees[j].getLotCaseMap();
-                    for (Map.Entry<Lot, Integer> kv : lotCaseId.entrySet()) {
-                        if(kv.getKey().getNom().equals(entry.getKey())) {
+                    HashMap<Lot, Integer> lotCaseMap = tabRangees[j].getLotCaseMap();
+                    Iterator<Map.Entry<Lot, Integer>> iterator = lotCaseMap.entrySet().iterator();
+                    while (iterator.hasNext() && volumeNecessaire < entry.getValue()) {
+                        Map.Entry<Lot, Integer> kv = iterator.next();
+                        if (kv.getKey().getNom().equals(entry.getKey())) {
                             volumeNecessaire += kv.getKey().getVolume();
-                            identifiantsVolumes.put(kv.getKey(), entry.getValue());
+                            idLotVolume.put(kv.getKey(), entry.getValue());
                             prixMeuble += kv.getKey().getPrixUnit() * entry.getValue();
                         }
                     }
-                    if (volumeNecessaire == entry.getValue()){
+                    if (volumeNecessaire >= entry.getValue()){
                         bonVolume = true;
                         break;
                     }
@@ -382,16 +411,31 @@ public class Entrepot {
                 if(!bonVolume) throw new IllegalStateException("\u001B[31mCommande de meuble rejetee.\u001B[0m\n" +
                         "Volume necessaire pour le lot "+ entry.getKey() + " : \u001B[31mIndisponible\u001B[0m");
             }
-            identifiantsVolumes.forEach((lot, volumeNecessaire) -> {
+            /*On assemble tous les lots trouves (en supprimant ou reduisant chaque lot)
+              pour ce faire il faut du personnel stock, si on n'a pas assez, la commande de meuble est rejetee*/
+            ArrayList<Integer> persoStockId = new ArrayList<>();
+            for (int i = 0; i < idLotVolume.size()-1; i++) {
+                Personnel perso = persoStockDispo();
+                if(perso == null) throw new IllegalStateException("\u001B[31mCommande de meuble rejetee.\u001B[0m\n" +
+                        "Personnel apte a rassembler les lots necessaires : \u001B[31mIndisponible\u001B[0m");
+                else {
+                    persoIndispo.put(perso.getIdentifiant(), 1);
+                    persoStockId.add(perso.getIdentifiant());
+                }
+            }
+            persoStockId.forEach(integer -> persoIndispo.remove(integer));
+            idLotVolume.forEach((lot, volumeNecessaire) -> {
                 if(lot.getVolume() == volumeNecessaire) supprimerLot(lot.getLotId());
                 else reduireLot(lot.getLotId(), volumeNecessaire);
             });
+            //On reserve personnel durant toute la duree de construction
+            persoIndispo.put(personnel.getIdentifiant(), meuble.getDureeConstruction());
             tresorerie += prixMeuble;
         }
     }
 
     /**
-     * Recrute un nouveau chef d'equipe en l'ajoutant a la liste des chefs d'equipe de l'entrepot.
+     * Recrute un nouveau chef d'equipe en l'ajoutant a la liste des chefs d'equipe de l'<code>entrepot</code>.
      * @param chefEquipe la liste des chefs d'equipe
      */
     public void recruterChefEquipe(ChefEquipe chefEquipe) {
@@ -405,7 +449,9 @@ public class Entrepot {
      * A l'issue de cette methode, le chef d'equipe est licencie et donc supprime de la liste chefsEquipe.
      * @param id L'identifiant d'un chef d'equipe
      * @param nomPrenomChefEquipe Le nom et le prenom d'un chef d'equipe
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException si aucun chef d'equipe n'a l'identifiant <code>id</code> ou le nom et prenom <code>nomPrenomChefEquipe</code>
+     * @see ChefEquipe
+     * @see Simulation
      */
     public void licencierChefEquipe(int id, String nomPrenomChefEquipe) throws IllegalArgumentException {
             boolean found = false;
@@ -454,9 +500,11 @@ public class Entrepot {
      * @param idChef l'identifiant du chef d'equipe associe a l'ouvrier recherche
      * @param idOuv l'identifiant de l'ouvrier recherche
      * @param nomPrenomOuvrier le nom et le prenom de l'ouvrier recherche
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException Si aucun chef d'equipe ne possede l'identifiant <code>idChef</code> ou aucun ouvrier ne
+     * possede l'identifiant <code>idOuv</code> ou le nom et prenom <code>nomPrenomOuvrier</code>
      * @see ChefEquipe
      * @see ChefEquipe#removeOuvrier(int)
+     * @see Simulation
      */
     public void licencierOuvrier(int idChef, int idOuv, String nomPrenomOuvrier) throws IllegalArgumentException {
             boolean chefFound = false;
@@ -520,6 +568,10 @@ public class Entrepot {
         System.out.println("---------------------------------------------------------------");
     }
 
+    /**
+     * Appelee a la fin de chaque pas de temps pour mettre a jour la HashMap <code>personIndispo</code> qui suit les membre deja requisitionnes
+     * @see Simulation
+     */
     public void updatePersonnel() {
         Iterator<Map.Entry<Integer, Integer>> it = persoIndispo.entrySet().iterator();
         while (it.hasNext()) {
