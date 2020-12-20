@@ -5,6 +5,7 @@ public class Entrepot {
      * Nombre de rangees dans l'entrepot.
      */
     private int m; //nombre de rangees
+
     /**
      * Nombre d'intervalles dans chaque rangees (longueur en metres de chaque rangee).
      */
@@ -271,6 +272,7 @@ public class Entrepot {
      * Supprime un lot de l'entrepot, soit pour construire un meuble soit pour faire de la place.
      * @param id l'identifiant du <code>lot</code> a supprimer
      * @throws IllegalStateException
+     * @see Lot
      */
     public void supprimerLot(int id) throws IllegalStateException {
         //On verifie d'abord si on a le personnel necessaire
@@ -304,10 +306,48 @@ public class Entrepot {
     }
 
     /**
+     * Reduit le volume d'un meuble dans l'entrepot. Cette methode est utilisee dans <code>monterMeuble</code> 
+     * @param id l'identifiant du meuble a reduire
+     * @throws IllegalStateException
+     * @see #monterMeuble(Meuble)
+     */
+    public void reduireLot(int id, int volumeAReduire) throws IllegalStateException{
+        //On verifie d'abord si on a le personnel necessaire
+        Personnel personnel = persoStockDispo();
+        if (personnel == null) {
+            throw new IllegalStateException("\u001B[31mImpossible de reduire le lot.\u001B[0m\n" +
+                    "Personnel apte a reduire le lot : \u001B[31mIndisponible\u001B[0m");
+        }
+        else {
+            boolean lotFound = false;
+            for (int i=0; i<m; i++){
+                HashMap<Lot, Integer> lotCaseMap = tabRangees[i].getLotCaseMap();
+                Iterator<Map.Entry<Lot, Integer>> iterator = lotCaseMap.entrySet().iterator();
+                while (iterator.hasNext() && !lotFound) {
+                    Map.Entry<Lot, Integer> entry = iterator.next();
+                    if (entry.getKey().getLotId() == id) {
+                        lotFound = true;
+                        int indice = entry.getValue();
+                        int[] tabLotId = tabRangees[i].getTabLotId();
+                        for (int j = 0; j < volumeAReduire; j++) {
+                            tabLotId[indice + j] = -1;
+                        }
+                    }
+                    lotCaseMap.remove(entry.getKey(), entry.getValue());
+                }
+                if(lotFound) break;
+            }
+            if (!lotFound) {throw new IllegalStateException("\u001B[31mImpossible de réduire ce lot." +
+                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m\n");}
+        }
+    }
+
+    /**
      * Verifie si on a le personnel et les lots necessaires a la fabrication d'un meuble.
      * Si c'est le cas, alors le meuble est construit et les lots utilises sont supprimés de l'entrepot.
-     * @param meuble
+     * @param meuble le meuble a monter
      * @throws IllegalStateException
+     * @see Meuble
      */
     public void monterMeuble(Meuble meuble) throws IllegalStateException{
         //On verifie d'abord si on a le personnel

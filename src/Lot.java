@@ -1,17 +1,32 @@
 public class Lot {
     private static int last_id = 0;
 
+    /**
+     * Le numero d'identifiant d'un lot.
+     */
     private int lotId;
+    /**
+     * Le nom d'un lot.
+     */
     private String nom;
+    /**
+     * Le volume d'un lot (qui correspond a son type).
+     */
     private int volume;
-    private double poids; //d'une unite de volume
-    private double prix; //d'une unite de volume
+    /**
+     * Le poids d'une unite de volume d'un lot.
+     */
+    private double poids;
+    /**
+     * Le prix d'une unite de volume d'un lot.
+     */
+    private double prix;
 
     /**
      * Constructeur de la classe <code>Lot</code>.
-     * @param nom nom du lot
-     * @param volume volume du lot
-     * @param poids poids du lot
+     * @param nom nom d'un lot
+     * @param volume volume d'un lot
+     * @param poids poids d'un lot
      * @param prix prix d'une unite de lot
      */
     public Lot(String nom, int volume, double poids, double prix) {
