@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class Simulation {
 
     /**
-     * Execute la simulation de l'entrepot
+     * Execute la simulation de l'entrepot.
      * @param args - unused
      */
     public static void main(String[] args) {
@@ -68,7 +68,7 @@ public class Simulation {
     /**
      * Initialise les valeurs de depart de l'entrepot.
      * @return un objet de type <code>Entrepot</code>
-     * @see {@link #Entrepot}
+     * @see Entrepot
      */
     private static Entrepot initEntrepot() {
         System.out.println("\u001B[34mCommencez par specifier les conditions initiales de l'entrepot\u001B[0m");
@@ -164,8 +164,9 @@ public class Simulation {
     }
 
     /**
-     * Demande a l'utilisateur ce qu'il veut faire et execute la consigne.
-     * @param entrepot
+     * Demande a l'utilisateur ce qu'il veut faire puis execute la consigne.
+     * @param entrepot l'entrepot
+     * @see Entrepot
      */
     private static void consigneModeConsole(Entrepot entrepot) {
         System.out.println("Consigne recue :\n(1) Nouveau Lot\t(2) Commande Meuble\t(3) Rien");
@@ -227,6 +228,13 @@ public class Simulation {
         }
     }
 
+    /**
+     *
+     * @param s
+     * @param entrepot
+     * @throws IOException
+     * @throws IllegalArgumentException
+     */
     private static void parseConsigne(String s, Entrepot entrepot) throws IOException, IllegalArgumentException {
         try {
             String[] sTab = s.split(" ");
@@ -282,7 +290,8 @@ public class Simulation {
 
     /**
      * Decrit toutes les possibilites de l'utilisateur a chaque pas de temps de la simulation.
-     * @param entrepot
+     * @param entrepot l'entrepot
+     * @see Entrepot
      */
     private static void actionsParPas(Entrepot entrepot) {
         System.out.println("Paiement du personnel en cours...");

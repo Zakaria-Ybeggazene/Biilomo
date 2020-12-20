@@ -1,8 +1,20 @@
 public abstract class Personnel {
+    /**
+     * Un identifiant de depart servant a etablir les identifiants de tous les membres du personnel par incrementation
+     */
     private static int last_id = 1;
 
+    /**
+     * L'identifiant d'un membre du personnel.
+     */
     private int identifiant;
+    /**
+     * Le nom d'un membre du personnel.
+     */
     private String nom;
+    /**
+     * Le prenom d'un membre du personnel.
+     */
     private String prenom;
 
     /**
@@ -42,7 +54,7 @@ public abstract class Personnel {
 
     /**
      * Retourne l'identifiant d'un membre du personnel
-     * @return
+     * @return un objet de type <code>int</code>
      */
     public static int getLast_id() {
         return last_id;
