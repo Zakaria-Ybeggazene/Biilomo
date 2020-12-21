@@ -56,4 +56,6 @@ public class Lot {
     public double getPrixUnit() {
         return prix;
     }
+
+    public static int getLast_id() {return last_id;}
 }

@@ -106,7 +106,7 @@ public class Entrepot {
     public void inventaire() {
         System.out.println("---------------------------------------------------------------");
         System.out.println("Tresorerie : "+String.format("%,.2f€",this.tresorerie));
-        System.out.println("L'entrepot possede "+m+" rangees de longueur "+n+" dont le contenu est le suivant :");
+        System.out.println("L'entrepot possede "+m+" rangee(s) de longueur "+n+" dont le contenu est le suivant :");
         for(int i=0; i<m; i++) {
             System.out.println("\nRangee N° "+i+" :");
             for (int j = 0; j < n; j++) {
@@ -277,8 +277,8 @@ public class Entrepot {
                         lotFound = true;
                         if(tabRangees[numRangee].peutDeplacer(entry.getKey(), emplacementRangee)) {
                             persoIndispo.put(personnel.getIdentifiant(), 1);
-                            tabRangees[numRangee].rangerLot(entry.getKey(), emplacementRangee);
                             tabRangees[i].retirerLot(entry.getKey(), entry.getValue());
+                            tabRangees[numRangee].rangerLot(entry.getKey(), emplacementRangee);
                         } else throw new IllegalStateException("\u001B[31mImpossible de deplacer ce lot vers " +
                                 "la rangee "+ numRangee +" a l'emplacement "+ emplacementRangee +".\u001B[0m");
                     }
@@ -286,7 +286,7 @@ public class Entrepot {
                 if(lotFound) break;
             }
             if (!lotFound) throw new IllegalStateException("\u001B[31mImpossible de deplacer ce lot." +
-                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
+                    " Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
         }
     }
 
@@ -322,7 +322,7 @@ public class Entrepot {
                 if(lotFound) break;
             }
             if (!lotFound) throw new IllegalStateException("\u001B[31mImpossible de supprimer ce lot." +
-                    "Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
+                    " Son identifiant ne correspond a aucun lot de l'entrepot\u001B[0m");
         }
     }
 

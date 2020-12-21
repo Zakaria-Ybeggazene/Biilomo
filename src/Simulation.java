@@ -36,23 +36,23 @@ public class Simulation {
         System.out.println("(1) Mode console\t(2) Mode fichier texte");
         int mode = Keyin.inInt(">>", Arrays.asList(1,2));
         switch (mode) {
-            case 1:
+            case 1 -> {
                 System.out.println("\u001B[34mVous avez choisi le mode console !\u001B[0m");
                 int choice = 1;
                 int pasDeTemps = 0;
                 while (choice == 1) {
-                    System.out.println("---------\nTemps : "+pasDeTemps);
-                    System.out.println("Tresorerie actuelle : "+String.format("%,.2f€", entrepot.getTresorerie()));
+                    System.out.println("---------\nTemps : " + pasDeTemps);
+                    System.out.println("Tresorerie actuelle : " + String.format("%,.2f€", entrepot.getTresorerie()));
                     consigneModeConsole(entrepot);
                     actionsParPas(entrepot);
                     System.out.println("\u001B[34mChoisissez :\u001B[0m\n" +
                             "(1) Passer au prochain pas de temps\t" +
                             "(2) Arreter la simulation");
-                    choice = Keyin.inInt(">>", Arrays.asList(1,2));
+                    choice = Keyin.inInt(">>", Arrays.asList(1, 2));
                     pasDeTemps++;
                 }
-                break;
-            case 2:
+            }
+            case 2 -> {
                 System.out.println("\u001B[34mVous avez choisi le mode fichier texte !\u001B[0m");
                 try {
                     Keyin.printPrompt("Entrez le chemin du fichier de simulation :\n" +
@@ -68,7 +68,7 @@ public class Simulation {
                 } catch (IOException e) {
                     System.out.println("\u001B[31mUne erreur relative au fichier s'est produite.\u001B[0m");
                 }
-                break;
+            }
         }
     }
 
@@ -181,7 +181,7 @@ public class Simulation {
         System.out.println("Consigne recue :\n(1) Nouveau Lot\t(2) Commande Meuble\t(3) Rien");
         int cons = Keyin.inInt(">>", Arrays.asList(1,2,3));
         switch (cons) {
-            case 1:
+            case 1 -> {
                 System.out.println("\u001B[34mCaracteristiques du lot a recevoir :\u001B[0m");
                 Keyin.printPrompt("Entrez le type (nom) du lot (premiere lettre en majuscule) :\n>>");
                 String nom = Keyin.inString();
@@ -194,8 +194,8 @@ public class Simulation {
                 } catch (IllegalStateException e) {
                     System.out.println(e.getMessage());
                 }
-                break;
-            case 2:
+            }
+            case 2 -> {
                 System.out.println("\u001B[34mCommande de meuble recue :\u001B[0m");
                 Keyin.printPrompt("Entrez le nom du meuble commande :\n>>");
                 String nomMeuble = Keyin.inString();
@@ -215,7 +215,7 @@ public class Simulation {
                     listeLots.put(type, quantite);
                     System.out.println("Voulez-vous ajouter un autre lot necessaire a la construction" +
                             " du meuble ?\n(1) Oui\t(2) Non");
-                    addEntry = Keyin.inInt(">>", Arrays.asList(1,2));
+                    addEntry = Keyin.inInt(">>", Arrays.asList(1, 2));
                 }
                 Meuble meuble;
                 try {
@@ -230,10 +230,8 @@ public class Simulation {
                 } catch (Exception e) {
                     System.out.println("\u001B[31mUne erreur s'est produite\u001B[0m");
                 }
-                break;
-            case 3:
-                System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
-                break;
+            }
+            case 3 -> System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
         }
     }
     /**
@@ -250,20 +248,19 @@ public class Simulation {
             int consigneId = Integer.parseInt(sTab[0]);
             System.out.println("---------\nTemps : "+(consigneId - 1));
             System.out.println("Tresorerie actuelle : "+String.format("%,.2f€", entrepot.getTresorerie()));
-            switch(sTab[1]) {
-                case "rien":
-                    System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
-                    break;
-                case "lot":
-                    if(sTab.length != 6) throw new IllegalArgumentException("\u001B[31mLigne : "+ line +"\nFormat du fichier incorrect\u001B[0m");
+            switch (sTab[1]) {
+                case "rien" -> System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
+                case "lot" -> {
+                    if (sTab.length != 6)
+                        throw new IllegalArgumentException("\u001B[31mLigne : " + line + "\nFormat du fichier incorrect\u001B[0m");
                     Integer.parseInt(sTab[5]);
                     Double.parseDouble(sTab[3]);
                     Double.parseDouble(sTab[4]);
                     System.out.println("\u001B[34mCaracteristiques du lot a recevoir :\u001B[0m");
-                    System.out.println("Le type (nom) du lot : "+sTab[2]);
-                    System.out.println("Le volume du lot : "+sTab[5]);
-                    System.out.println("Le poids d'une unite de volume : "+sTab[3]);
-                    System.out.println("Le prix (en Euro) d'une unite de volume : "+sTab[4]);
+                    System.out.println("Le type (nom) du lot : " + sTab[2]);
+                    System.out.println("Le volume du lot : " + sTab[5]);
+                    System.out.println("Le poids d'une unite de volume : " + sTab[3]);
+                    System.out.println("Le prix (en Euro) d'une unite de volume : " + sTab[4]);
                     try {
                         entrepot.recevoirLot(new Lot(sTab[2],
                                 Integer.parseInt(sTab[5]),
@@ -273,36 +270,35 @@ public class Simulation {
                     } catch (IllegalStateException e) {
                         System.out.println(e.getMessage());
                     }
-                    break;
-                case "meuble":
-                    if(sTab.length < 7 || sTab.length % 2 == 0) throw new IllegalArgumentException("\u001B[31mLigne : "
-                            + line +"\nFormat du fichier incorrect\u001B[0m");
+                }
+                case "meuble" -> {
+                    if (sTab.length < 7 || sTab.length % 2 == 0) throw new IllegalArgumentException("\u001B[31mLigne : "
+                            + line + "\nFormat du fichier incorrect\u001B[0m");
                     Integer.parseInt(sTab[4]);
-                    for (int i = 6; i < sTab.length; i+=2) {
+                    for (int i = 6; i < sTab.length; i += 2) {
                         Integer.parseInt(sTab[i]);
                     }
                     System.out.println("\u001B[34mCommande de meuble recue :\u001B[0m");
-                    System.out.println("Nom (type) : "+sTab[2]);
-                    System.out.println("Piece de la maison a laquelle il est associe : "+sTab[3]);
-                    System.out.println("Duree de construction (en pas de temps) : "+sTab[4]);
+                    System.out.println("Nom (type) : " + sTab[2]);
+                    System.out.println("Piece de la maison a laquelle il est associe : " + sTab[3]);
+                    System.out.println("Duree de construction (en pas de temps) : " + sTab[4]);
                     System.out.println("Lots necessaires a sa construction :");
                     HashMap<String, Integer> listeLots = new HashMap<>();
-                    for (int i = 5; i < sTab.length; i+=2) {
-                        listeLots.put(sTab[i], Integer.parseInt(sTab[i+1]));
-                        System.out.println("{Type : \""+sTab[i]+"\" ; Qt : \""+sTab[i+1]+"\"}");
+                    for (int i = 5; i < sTab.length; i += 2) {
+                        listeLots.put(sTab[i], Integer.parseInt(sTab[i + 1]));
+                        System.out.println("{Type : \"" + sTab[i] + "\" ; Qt : \"" + sTab[i + 1] + "\"}");
                     }
-					try {
-					    entrepot.monterMeuble(new Meuble(sTab[2],
+                    try {
+                        entrepot.monterMeuble(new Meuble(sTab[2],
                                 PieceMaison.getPieceWhereNomIs(sTab[3]),
                                 Integer.parseInt(sTab[4]),
                                 listeLots));
                         System.out.println("\u001B[34mCommande de meuble acceptee\u001B[0m");
                     } catch (IllegalStateException e) {
-					    System.out.println(e.getMessage());
+                        System.out.println(e.getMessage());
                     }
-					break;
-                default:
-                    throw new IllegalArgumentException("\u001B[31mLigne : "+ line +"\nFormat du fichier incorrect\u001B[0m");
+                }
+                default -> throw new IllegalArgumentException("\u001B[31mLigne : " + line + "\nFormat du fichier incorrect\u001B[0m");
             }
         } catch (NumberFormatException e) {
             System.out.println("\u001B[31mLigne : "+ line +"\nValeur attendue : Nombre (int ou double)\u001B[0m");
@@ -342,10 +338,30 @@ public class Simulation {
                     entrepot.inventaire();
                     break;
                 case 2:
+                    Keyin.printPrompt("Entrez l'identifiant du lot a deplacer :\n");
+                    int identifiant_lot= Keyin.inInt(">>",IntStream.rangeClosed(0, Lot.getLast_id() - 1).boxed().collect(Collectors.toList()));
+                    Keyin.printPrompt("Entrez le numero de la rangee dans laquelle vous souhaitez deplacer le lot :\n");
+                    int num_rangee= Keyin.inInt(">>",IntStream.rangeClosed(0,entrepot.getM()-1).boxed().collect(Collectors.toList()));
+                    Keyin.printPrompt("Entrez le numero de l'intervalle dans lequel vous souhaitez ranger le lot :\n");
+                    int num_intervalle= Keyin.inInt(">>",IntStream.rangeClosed(0,entrepot.getN()-1).boxed().collect(Collectors.toList()));
+                    try {
+                        entrepot.deplacerLot(identifiant_lot,num_rangee,num_intervalle);
+                        System.out.println("\u001B[34mLe lot d'identifiant "+identifiant_lot+
+                            " a ete deplace avec succes\u001B[0m");
+                    } catch (IllegalStateException e){
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 3:
-                    int idASupp = 0;
-                    entrepot.supprimerLot(idASupp);
+                    Keyin.printPrompt("Entrez l'identifiant du lot a supprimer :\n");
+                    int idASupp= Keyin.inInt(">>",IntStream.rangeClosed(0, Lot.getLast_id() - 1).boxed().collect(Collectors.toList()));
+                    try{
+                        entrepot.supprimerLot(idASupp);
+                        System.out.println("\u001B[34mLe lot d'identifiant "+idASupp+
+                                " a ete supprime avec succes\u001B[0m");
+                    } catch (IllegalStateException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 4:
                     entrepot.afficherPersonnel();
@@ -385,7 +401,7 @@ public class Simulation {
                                 System.out.println("\u001B[34mL'ouvrier " + nom + " " + prenom + " a ete ajoute a l'equipe de "
                                         + chefEquipe.getNom() + " " + chefEquipe.getPrenom() + "\u001B[0m");
                                 recrutement = true;
-                            } catch (IllegalArgumentException | NullPointerException e) {
+                            } catch (IllegalArgumentException | IllegalStateException e) {
                                 System.out.println(e.getMessage());
                             }
                         }
