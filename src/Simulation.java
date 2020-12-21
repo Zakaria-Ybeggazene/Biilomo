@@ -36,7 +36,7 @@ public class Simulation {
         System.out.println("(1) Mode console\t(2) Mode fichier texte");
         int mode = Keyin.inInt(">>", Arrays.asList(1,2));
         switch (mode) {
-            case 1 -> {
+            case 1 :
                 System.out.println("\u001B[34mVous avez choisi le mode console !\u001B[0m");
                 int choice = 1;
                 int pasDeTemps = 0;
@@ -51,24 +51,30 @@ public class Simulation {
                     choice = Keyin.inInt(">>", Arrays.asList(1, 2));
                     pasDeTemps++;
                 }
-            }
-            case 2 -> {
+                break;
+                case 2 :
                 System.out.println("\u001B[34mVous avez choisi le mode fichier texte !\u001B[0m");
-                try {
-                    Keyin.printPrompt("Entrez le chemin du fichier de simulation :\n" +
-                            "(\"src/Simulation.txt\" pour le fichier deja existant dans le projet)\n>>");
-                    String chemin = Keyin.inString();
-                    File file = new File(chemin);
-                    Stream<String> s = Files.lines(file.toPath());
-                    s.forEach(l -> {
-                        parseConsigne(l, entrepot);
-                        actionsParPas(entrepot);
-                    });
-                    System.out.println("\u001B[34mFin des consignes du fichier de simulation\nFin de la simulation.\u001B[0m");
-                } catch (IOException e) {
-                    System.out.println("\u001B[31mUne erreur relative au fichier s'est produite.\u001B[0m");
+                while (true) {
+                    try {
+                        Keyin.printPrompt("Entrez le chemin du fichier de simulation :\n" +
+                                "(\"src/Simulation.txt\" pour le fichier deja existant dans le projet)\n>>");
+                        String chemin = Keyin.inString();
+                        File file = new File(chemin);
+                        if(file.isFile()) {
+                        Stream<String> s = Files.lines(file.toPath());
+                        s.forEach(l -> {
+                            parseConsigne(l, entrepot);
+                            actionsParPas(entrepot);
+                        });
+                        System.out.print("\u001B[34mFin des consignes du fichier de simulation\n" +
+                                "Finir la simulation en saisissant \"quit()\" " +
+                                "ou saisir autre chose pour choisir un autre fichier et continuer la simulation.\u001B[0m\n>> ");
+                        Keyin.inString();
+                        }
+                    } catch (IOException e) {
+                        System.out.println("\u001B[31mUne erreur relative au fichier s'est produite.\u001B[0m");
+                    }
                 }
-            }
         }
     }
 
@@ -181,7 +187,7 @@ public class Simulation {
         System.out.println("Consigne recue :\n(1) Nouveau Lot\t(2) Commande Meuble\t(3) Rien");
         int cons = Keyin.inInt(">>", Arrays.asList(1,2,3));
         switch (cons) {
-            case 1 -> {
+            case 1 :
                 System.out.println("\u001B[34mCaracteristiques du lot a recevoir :\u001B[0m");
                 Keyin.printPrompt("Entrez le type (nom) du lot (premiere lettre en majuscule) :\n>>");
                 String nom = Keyin.inString();
@@ -194,8 +200,8 @@ public class Simulation {
                 } catch (IllegalStateException e) {
                     System.out.println(e.getMessage());
                 }
-            }
-            case 2 -> {
+            break;
+            case 2 :
                 System.out.println("\u001B[34mCommande de meuble recue :\u001B[0m");
                 Keyin.printPrompt("Entrez le nom du meuble commande :\n>>");
                 String nomMeuble = Keyin.inString();
@@ -230,8 +236,10 @@ public class Simulation {
                 } catch (Exception e) {
                     System.out.println("\u001B[31mUne erreur s'est produite\u001B[0m");
                 }
-            }
-            case 3 -> System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
+            break;
+            case 3 :
+                System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
+                break;
         }
     }
     /**
@@ -249,8 +257,10 @@ public class Simulation {
             System.out.println("---------\nTemps : "+(consigneId - 1));
             System.out.println("Tresorerie actuelle : "+String.format("%,.2f€", entrepot.getTresorerie()));
             switch (sTab[1]) {
-                case "rien" -> System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
-                case "lot" -> {
+                case "rien" :
+                    System.out.println("\u001B[34mAucune consigne recue...\u001B[0m");
+                    break;
+                case "lot" :
                     if (sTab.length != 6)
                         throw new IllegalArgumentException("\u001B[31mLigne : " + line + "\nFormat du fichier incorrect\u001B[0m");
                     Integer.parseInt(sTab[5]);
@@ -270,8 +280,8 @@ public class Simulation {
                     } catch (IllegalStateException e) {
                         System.out.println(e.getMessage());
                     }
-                }
-                case "meuble" -> {
+                break;
+                case "meuble" :
                     if (sTab.length < 7 || sTab.length % 2 == 0) throw new IllegalArgumentException("\u001B[31mLigne : "
                             + line + "\nFormat du fichier incorrect\u001B[0m");
                     Integer.parseInt(sTab[4]);
@@ -297,8 +307,9 @@ public class Simulation {
                     } catch (IllegalStateException e) {
                         System.out.println(e.getMessage());
                     }
-                }
-                default -> throw new IllegalArgumentException("\u001B[31mLigne : " + line + "\nFormat du fichier incorrect\u001B[0m");
+                break;
+                default :
+                    throw new IllegalArgumentException("\u001B[31mLigne : " + line + "\nFormat du fichier incorrect\u001B[0m");
             }
         } catch (NumberFormatException e) {
             System.out.println("\u001B[31mLigne : "+ line +"\nValeur attendue : Nombre (int ou double)\u001B[0m");
@@ -338,23 +349,23 @@ public class Simulation {
                     entrepot.inventaire();
                     break;
                 case 2:
-                    Keyin.printPrompt("Entrez l'identifiant du lot a deplacer :\n");
-                    int identifiant_lot= Keyin.inInt(">>",IntStream.rangeClosed(0, Lot.getLast_id() - 1).boxed().collect(Collectors.toList()));
-                    Keyin.printPrompt("Entrez le numero de la rangee dans laquelle vous souhaitez deplacer le lot :\n");
-                    int num_rangee= Keyin.inInt(">>",IntStream.rangeClosed(0,entrepot.getM()-1).boxed().collect(Collectors.toList()));
-                    Keyin.printPrompt("Entrez le numero de l'intervalle dans lequel vous souhaitez ranger le lot :\n");
-                    int num_intervalle= Keyin.inInt(">>",IntStream.rangeClosed(0,entrepot.getN()-1).boxed().collect(Collectors.toList()));
+                    System.out.println("Entrez l'identifiant du lot a deplacer :");
+                    int identifiantLot = Keyin.inInt(">>",IntStream.rangeClosed(0, Lot.getLast_id()).boxed().collect(Collectors.toList()));
+                    System.out.println("Entrez le numero de la rangee dans laquelle vous souhaitez deplacer le lot :");
+                    int numRangee = Keyin.inInt(">>",IntStream.rangeClosed(0,entrepot.getM()-1).boxed().collect(Collectors.toList()));
+                    System.out.println("Entrez le numero de l'intervalle dans lequel vous souhaitez ranger le lot :");
+                    int numIntervalle = Keyin.inInt(">>",IntStream.rangeClosed(0,entrepot.getN()-1).boxed().collect(Collectors.toList()));
                     try {
-                        entrepot.deplacerLot(identifiant_lot,num_rangee,num_intervalle);
-                        System.out.println("\u001B[34mLe lot d'identifiant "+identifiant_lot+
+                        entrepot.deplacerLot(identifiantLot, numRangee, numIntervalle);
+                        System.out.println("\u001B[34mLe lot d'identifiant "+ identifiantLot +
                             " a ete deplace avec succes\u001B[0m");
                     } catch (IllegalStateException e){
                         System.out.println(e.getMessage());
                     }
                     break;
                 case 3:
-                    Keyin.printPrompt("Entrez l'identifiant du lot a supprimer :\n");
-                    int idASupp= Keyin.inInt(">>",IntStream.rangeClosed(0, Lot.getLast_id() - 1).boxed().collect(Collectors.toList()));
+                    System.out.println("Entrez l'identifiant du lot a supprimer :");
+                    int idASupp= Keyin.inInt(">>",IntStream.rangeClosed(0, Lot.getLast_id()).boxed().collect(Collectors.toList()));
                     try{
                         entrepot.supprimerLot(idASupp);
                         System.out.println("\u001B[34mLe lot d'identifiant "+idASupp+
@@ -415,7 +426,7 @@ public class Simulation {
                             if (personnelALicencier == 1) {
                                 int id = Keyin.inInt("Entrez l'identifiant du chef d'equipe que vous souhaitez licencier :\n" +
                                                 "(Entrez 0 si vous ne le connaissez pas)\n>>",
-                                        IntStream.rangeClosed(0, Personnel.getLast_id() - 1).boxed().collect(Collectors.toList()));
+                                        IntStream.rangeClosed(0, Personnel.getLast_id()).boxed().collect(Collectors.toList()));
                                 if (id == 0) {
                                     Keyin.printPrompt("Entrez le nom du chef d'equipe que vous souhaitez licencier :\n>>");
                                     String nom = Keyin.inString().trim();
@@ -434,10 +445,10 @@ public class Simulation {
                             } else { // personnelALicencier == 2
                                 int idChef = Keyin.inInt("Entrez l'identifiant du chef de l'ouvrier que vous souhaitez licencier :\n" +
                                                 "(Entrez 0 si vous ne le connaissez pas)\n>>",
-                                        IntStream.rangeClosed(0, Personnel.getLast_id() - 1).boxed().collect(Collectors.toList()));
+                                        IntStream.rangeClosed(0, Personnel.getLast_id()).boxed().collect(Collectors.toList()));
                                 int idOuv = Keyin.inInt("Entrez l'identifiant de l'ouvrier que vous souhaitez licencier :\n" +
                                                 "(Entrez 0 si vous ne le connaissez pas)\n>>",
-                                        IntStream.rangeClosed(0, Personnel.getLast_id() - 1).boxed().collect(Collectors.toList()));
+                                        IntStream.rangeClosed(0, Personnel.getLast_id()).boxed().collect(Collectors.toList()));
                                 if (idOuv == 0) {
                                     Keyin.printPrompt("Entrez le nom de l'ouvrier que vous souhaitez licencier :\n>>");
                                     String nom = Keyin.inString().trim();

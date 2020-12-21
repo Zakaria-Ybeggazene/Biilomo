@@ -5,9 +5,9 @@ public class Rangee {
     private static int last_id = 0;
     private static int n;
 
-    private int rangeeId;
-    private HashMap<Lot, Integer> lotCaseMap = new HashMap<>();
-    private int[] tabLotId;
+    private final int rangeeId;
+    private final HashMap<Lot, Integer> lotCaseMap = new HashMap<>();
+    private final int[] tabLotId;
 
     public Rangee() {
         this.rangeeId = last_id++;
@@ -82,13 +82,9 @@ public class Rangee {
         for (int j = 0; j < volumeAReduire; j++) {
             tabLotId[caseDebut + j] = -1;
         }
-        Lot lotAReduire = lot; //I don't think this alone will work, coz it needs a clone
-        lotAReduire = new Lot(lotAReduire.getNom(),
-                lotAReduire.getVolume() - volumeAReduire,
-                lotAReduire.getPoidsUnit(),
-                lotAReduire.getPrixUnit());
-        lotCaseMap.put(lotAReduire, caseDebut+volumeAReduire);
         lotCaseMap.remove(lot, caseDebut);
+        lot.setVolume(lot.getVolume() - volumeAReduire);
+        lotCaseMap.put(lot, caseDebut+volumeAReduire);
         printRangeeModifiee();
     }
 

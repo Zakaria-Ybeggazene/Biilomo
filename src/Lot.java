@@ -4,11 +4,11 @@ public class Lot {
     /**
      * Le numero d'identifiant d'un lot.
      */
-    private int lotId;
+    private final int lotId;
     /**
      * Le nom d'un lot.
      */
-    private String nom;
+    private final String nom;
     /**
      * Le volume d'un lot (qui correspond a son type).
      */
@@ -16,11 +16,11 @@ public class Lot {
     /**
      * Le poids d'une unite de volume d'un lot.
      */
-    private double poids;
+    private final double poids;
     /**
      * Le prix d'une unite de volume d'un lot.
      */
-    private double prix;
+    private final double prix;
 
     /**
      * Constructeur de la classe <code>Lot</code>.
@@ -58,4 +58,8 @@ public class Lot {
     }
 
     public static int getLast_id() {return last_id;}
+
+    public void setVolume(int volume) {
+        this.volume = volume;
+    }
 }

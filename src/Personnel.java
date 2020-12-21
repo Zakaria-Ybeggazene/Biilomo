@@ -7,15 +7,15 @@ public abstract class Personnel {
     /**
      * L'identifiant d'un membre du personnel.
      */
-    private int identifiant;
+    private final int identifiant;
     /**
      * Le nom d'un membre du personnel.
      */
-    private String nom;
+    private final String nom;
     /**
      * Le prenom d'un membre du personnel.
      */
-    private String prenom;
+    private final String prenom;
 
     /**
      * Constructeur de la classe abstraite <code>Personnel</code>.

@@ -4,12 +4,12 @@ public class Entrepot {
     /**
      * Nombre de rangees dans l'entrepot.
      */
-    private int m; //nombre de rangees
+    private final int m; //nombre de rangees
 
     /**
      * Nombre d'intervalles dans chaque rangees (longueur en metres de chaque rangee).
      */
-    private int n; //nombre d'intervalles
+    private final int n; //nombre d'intervalles
 
     /**
      * Tresorerie de l'entrepot en double. Non nulle au depart.
@@ -19,14 +19,14 @@ public class Entrepot {
     /**
      * Liste des chefs d'equipe.
      */
-    private ArrayList<ChefEquipe> chefsEquipe = new ArrayList<>();
+    private final ArrayList<ChefEquipe> chefsEquipe = new ArrayList<>();
 
     /**
      * Tableau des m rangees de l'entrepot.
      */
-    private Rangee[] tabRangees;
+    private final Rangee[] tabRangees;
 
-    private HashMap<Integer, Integer> persoIndispo = new HashMap<>();
+    private final HashMap<Integer, Integer> persoIndispo = new HashMap<>();
 
     /**
      * Constructeur de la classe <code>Entrepot</code> qui initialise la tresorerie.
@@ -83,15 +83,7 @@ public class Entrepot {
      * @return un objet de type <code>ArrayList</code>
      */
     public ArrayList<ChefEquipe> getChefsEquipe() {
-        return (ArrayList<ChefEquipe>) chefsEquipe;
-    }
-
-    public void setM(int m) {
-        this.m = m;
-    }
-
-    public void setN(int n) {
-        this.n = n;
+        return chefsEquipe;
     }
 
     public Rangee getRangee(int idRangee) {
@@ -399,7 +391,10 @@ public class Entrepot {
                         Map.Entry<Lot, Integer> kv = iterator.next();
                         if (kv.getKey().getNom().equals(entry.getKey())) {
                             volumeNecessaire += kv.getKey().getVolume();
-                            idLotVolume.put(kv.getKey(), entry.getValue());
+                            int volumeAReduire;
+                            if(volumeNecessaire <= entry.getValue()) volumeAReduire = kv.getKey().getVolume();
+                            else volumeAReduire = kv.getKey().getVolume() - volumeNecessaire + entry.getValue();
+                            idLotVolume.put(kv.getKey(), volumeAReduire);
                             prixMeuble += kv.getKey().getPrixUnit() * entry.getValue();
                         }
                     }
@@ -414,7 +409,7 @@ public class Entrepot {
             /*On assemble tous les lots trouves (en supprimant ou reduisant chaque lot)
               pour ce faire il faut du personnel stock, si on n'a pas assez, la commande de meuble est rejetee*/
             ArrayList<Integer> persoStockId = new ArrayList<>();
-            for (int i = 0; i < idLotVolume.size()-1; i++) {
+            for (int i = 0; i < idLotVolume.size(); i++) {
                 Personnel perso = persoStockDispo();
                 if(perso == null) throw new IllegalStateException("\u001B[31mCommande de meuble rejetee.\u001B[0m\n" +
                         "Personnel apte a rassembler les lots necessaires : \u001B[31mIndisponible\u001B[0m");
@@ -423,10 +418,10 @@ public class Entrepot {
                     persoStockId.add(perso.getIdentifiant());
                 }
             }
-            persoStockId.forEach(integer -> persoIndispo.remove(integer));
-            idLotVolume.forEach((lot, volumeNecessaire) -> {
-                if(lot.getVolume() == volumeNecessaire) supprimerLot(lot.getLotId());
-                else reduireLot(lot.getLotId(), volumeNecessaire);
+            persoStockId.forEach(persoIndispo::remove);
+            idLotVolume.forEach((lot, volumeAReduire) -> {
+                if(lot.getVolume() == volumeAReduire) supprimerLot(lot.getLotId());
+                else reduireLot(lot.getLotId(), volumeAReduire);
             });
             //On reserve personnel durant toute la duree de construction
             persoIndispo.put(personnel.getIdentifiant(), meuble.getDureeConstruction());
