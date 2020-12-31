@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Entrepot {
     /**
@@ -27,6 +28,14 @@ public class Entrepot {
     private final Rangee[] tabRangees;
 
     private final HashMap<Integer, Integer> persoIndispo = new HashMap<>();
+
+    private boolean persoStockManquant = false;
+
+    private boolean persoBricoManquant = false;
+
+    private double salairesTotaux = 0;
+
+    private double totalPrixMeubles = 0;
 
     /**
      * Constructeur de la classe <code>Entrepot</code> qui initialise la tresorerie.
@@ -90,6 +99,30 @@ public class Entrepot {
         return tabRangees[idRangee];
     }
 
+    public boolean isPersoBricoManquant() {
+        return persoBricoManquant;
+    }
+
+    public boolean isPersoStockManquant() {
+        return persoStockManquant;
+    }
+
+    public void togglePersoStockManquant() {
+        this.persoStockManquant = !persoStockManquant;
+    }
+
+    public void togglePersoBricoManquant() {
+        this.persoBricoManquant = !persoBricoManquant;
+    }
+
+    public double getSalairesTotaux() {
+        return salairesTotaux;
+    }
+
+    public double getTotalPrixMeubles() {
+        return totalPrixMeubles;
+    }
+
     /** Affiche la <code>tresorerie</code> de l'<code>entrepot</code> et les <code>lots</code> contenus
      *  dans toutes les <code>rangees</code>.
      * @author Zakaria Ybeggazene
@@ -124,10 +157,14 @@ public class Entrepot {
     public void payerPersonnel() {
         for (ChefEquipe chef: chefsEquipe) {
             this.tresorerie -= 10;
+            this.salairesTotaux += 10;
             Ouvrier[] ouvriers = chef.getEquipe();
             for(int i = 0; i < 4; i++) {
                 if(ouvriers[i] == null) break;
-                else this.tresorerie -= 5;
+                else {
+                    this.tresorerie -= 5;
+                    this.salairesTotaux += 5;
+                }
             }
         }
     }
@@ -138,7 +175,7 @@ public class Entrepot {
      * @author Zakaria Ybeggazene
      * @version 1.0
      * @see #chefsEquipe
-     * @see #recevoirLot(Lot)
+     * @see #recevoirLotNaive(Lot)
      * @see Personnel
      */
     public Personnel persoStockDispo() {
@@ -162,6 +199,7 @@ public class Entrepot {
                 }
             }
         }
+        if(personnel == null) persoStockManquant = true;
         return personnel;
     }
 
@@ -196,11 +234,12 @@ public class Entrepot {
                 }
             }
         }
+        if(personnel == null) persoBricoManquant = true;
         return personnel;
     }
 
     /** Essaye de ranger <code>lot<code/> dans l'une des <code>rangee</code> de l'<code>entrepot</code>
-     * s'il y a de l'espace contigu et du personnel.
+     *  dans le premier espace contigu suffisant retrouve s'il y a du personnel.
      * @param lot le nouveau <code>lot</code> a receptionner
      * @author Zakaria Ybeggazene
      * @version 1.0
@@ -213,7 +252,7 @@ public class Entrepot {
      * @see Rangee#indiceRanger(Lot)
      * @see Rangee#rangerLot(Lot, int)
      */
-    public void recevoirLot(Lot lot) throws IllegalStateException {
+    public void recevoirLotNaive(Lot lot) throws IllegalStateException {
         //On verifie d'abord si on a le personnel
         Personnel personnel = persoStockDispo();
         if(personnel == null) {
@@ -237,6 +276,41 @@ public class Entrepot {
                 persoIndispo.put(personnel.getIdentifiant(), 1);
                 tabRangees[numRangee].rangerLot(lot, caseDebut);
             }
+        }
+    }
+
+    /** Essaye de ranger <code>lot<code/> dans l'une des <code>rangee</code> de l'<code>entrepot</code>
+     *  dans le premier espace contigu suffisant retrouve s'il y a du personnel.
+     * @param lot le nouveau <code>lot</code> a receptionner
+     * @author Zakaria Ybeggazene
+     * @version 1.0
+     * @see #chefsEquipe
+     * @see #tabRangees
+     * @see #persoStockDispo()
+     * @see Rangee
+     * @see Lot
+     * @see Personnel
+     * @see Rangee#indiceRanger(Lot)
+     * @see Rangee#rangerLot(Lot, int)
+     */
+    public void recevoirLot(Lot lot) throws IllegalStateException {
+        //On verifie d'abord si on a le personnel
+        Personnel personnel = persoStockDispo();
+        if(personnel == null) {
+            throw new IllegalStateException("\u001B[31mLot rejete.\u001B[0m\n" +
+                    "Personnel apte a recevoir le lot : \u001B[31mIndisponible\u001B[0m");
+        } //Si on n'a pas de personnel, le lot est rejete
+        else { //On verifie si on a un espace contigu assez grand pour stocker le lot
+            HashMap<Map.Entry<Integer, Integer>, Integer> mapEspacesVides = buildMapEspacesVides();
+            List<Map.Entry<Map.Entry<Integer, Integer>, Integer>> entriesList = mapEspacesVides.entrySet().stream()
+                    .filter(entry -> entry.getValue() >= lot.getVolume()).sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+            if(!entriesList.isEmpty()) {
+                persoIndispo.put(personnel.getIdentifiant(), 1);
+                Map.Entry<Map.Entry<Integer, Integer>, Integer> entry = entriesList.get(0);
+                tabRangees[entry.getKey().getKey()].rangerLot(lot, entry.getKey().getValue());
+            }
+            else throw new IllegalStateException("\u001B[31mLot rejete.\u001B[0m\n" +
+                    "Espace contigu necessaire pour recevoir le lot : \u001B[31mIndisponible\u001B[0m");
         }
     }
 
@@ -426,6 +500,7 @@ public class Entrepot {
             //On reserve personnel durant toute la duree de construction
             persoIndispo.put(personnel.getIdentifiant(), meuble.getDureeConstruction());
             tresorerie += prixMeuble;
+            totalPrixMeubles += prixMeuble;
         }
     }
 
@@ -466,6 +541,7 @@ public class Entrepot {
                                     ChefEquipe chefReciever = iterator.next();
                                     if (chefReciever.getNumOuvriers() < 4) {
                                         chefReciever.addOuvrier(ouvriers[i]);
+                                        ouvriers[i].setChefId(chefReciever.getIdentifiant());
                                         isAssigned = true;
                                     }
                                 }
@@ -564,7 +640,7 @@ public class Entrepot {
     }
 
     /**
-     * Appelee a la fin de chaque pas de temps pour mettre a jour la HashMap <code>personIndispo</code> qui suit les membre deja requisitionnes
+     * Appelee a la fin de chaque pas de temps pour mettre a jour la HashMap <code>persoIndispo</code> qui suit les membre deja requisitionnes
      * @see Simulation
      */
     public void updatePersonnel() {
@@ -574,5 +650,37 @@ public class Entrepot {
             if(pair.getValue() == 1) it.remove();
             else pair.setValue(pair.getValue() - 1);
         }
+    }
+
+    public PieceMaison getSpecialiteManquante() {
+        if(!chefsEquipe.isEmpty()) {
+            for (PieceMaison pieceMaison : PieceMaison.values()) {
+                boolean found = false;
+                for (ChefEquipe chefEquipe : chefsEquipe) {
+                    if(chefEquipe.getNumOuvriers() != 0) {
+                        Ouvrier[] ouvriers = chefEquipe.getEquipe();
+                        for (int i = 0; i < 4; i++) {
+                            if(ouvriers[i] != null) {
+                                if(ouvriers[i].getSpecialite().equals(pieceMaison)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(found) break;
+                    }
+                }
+                if(!found) return pieceMaison;
+            }
+        }
+        return PieceMaison.randomPiece();
+    }
+
+    private HashMap<Map.Entry<Integer, Integer>, Integer> buildMapEspacesVides() {
+        HashMap<Map.Entry<Integer, Integer>, Integer> espacesVides = new HashMap<>();
+        for (int i = 0; i < m; i++) {
+            tabRangees[i].getEspacesVides(espacesVides);
+        }
+        return espacesVides;
     }
 }

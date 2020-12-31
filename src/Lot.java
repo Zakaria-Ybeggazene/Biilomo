@@ -1,5 +1,5 @@
 public class Lot {
-    private static int last_id = 0;
+    private static int next_id = 0;
 
     /**
      * Le numero d'identifiant d'un lot.
@@ -30,7 +30,7 @@ public class Lot {
      * @param prix prix d'une unite de lot
      */
     public Lot(String nom, int volume, double poids, double prix) {
-        this.lotId = last_id++;
+        this.lotId = next_id++;
         this.nom = nom;
         this.volume = volume;
         this.poids = poids;
@@ -57,7 +57,7 @@ public class Lot {
         return prix;
     }
 
-    public static int getLast_id() {return last_id;}
+    public static int getNext_id() {return next_id;}
 
     public void setVolume(int volume) {
         this.volume = volume;

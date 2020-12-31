@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Rangee {
-    private static int last_id = 0;
+    private static int next_id = 0;
     private static int n;
 
     private final int rangeeId;
@@ -10,7 +10,7 @@ public class Rangee {
     private final int[] tabLotId;
 
     public Rangee() {
-        this.rangeeId = last_id++;
+        this.rangeeId = next_id++;
         tabLotId = new int[Rangee.n];
         for (int i = 0; i < Rangee.n; i++) tabLotId[i] = -1;
     }
@@ -109,5 +109,23 @@ public class Rangee {
             j++;
         }
         return space == lot.getVolume();
+    }
+
+    public void getEspacesVides(HashMap<Map.Entry<Integer, Integer>, Integer> mapEspacesVides) {
+        int i = 0;
+        while (i < n) {
+            if(tabLotId[i] == -1) {
+                int space = 1;
+                boolean isEmpty = true;
+                int j = 0;
+                for (j = i+1; j < n && isEmpty; j++) {
+                    if(tabLotId[j] == -1) space++;
+                    else isEmpty = false;
+                }
+                mapEspacesVides.put(Map.entry(rangeeId, i), space);
+                i = j;
+            }
+            else i++;
+        }
     }
 }

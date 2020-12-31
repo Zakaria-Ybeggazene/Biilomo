@@ -2,7 +2,7 @@ public abstract class Personnel {
     /**
      * Un identifiant de depart servant a etablir les identifiants de tous les membres du personnel par incrementation
      */
-    private static int last_id = 1;
+    private static int next_id = 1;
 
     /**
      * L'identifiant d'un membre du personnel.
@@ -23,7 +23,7 @@ public abstract class Personnel {
      * @param prenom le prenom d'un membre du personnel
      */
     public Personnel (String nom, String prenom){
-        this.identifiant = last_id++;
+        this.identifiant = next_id++;
         this.nom = nom;
         this.prenom = prenom;
     }
@@ -56,7 +56,7 @@ public abstract class Personnel {
      * Retourne l'identifiant d'un membre du personnel
      * @return un objet de type <code>int</code>
      */
-    public static int getLast_id() {
-        return last_id;
+    public static int getNext_id() {
+        return next_id;
     }
 }

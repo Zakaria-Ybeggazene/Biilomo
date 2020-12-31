@@ -9,7 +9,7 @@ public abstract class ChefEquipe extends Personnel {
     /**
      * Tableau de 4 <code>Ouvriers</code> maximum.
      */
-    private Ouvrier[] equipe = new Ouvrier[4];
+    private final Ouvrier[] equipe = new Ouvrier[4];
 
 
     /**

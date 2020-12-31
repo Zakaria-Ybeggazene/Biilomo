@@ -8,7 +8,7 @@ public class Ouvrier extends Personnel {
      * La specialite associee a l'ouvrier, qui est une piece de la maison
      * @see PieceMaison
      */
-    private PieceMaison specialite;
+    private final PieceMaison specialite;
 
     /**
      * Constructeur de la classe <code>Ouvrier<code/>.
@@ -25,6 +25,10 @@ public class Ouvrier extends Personnel {
 
     public int getChefId() {
         return chefId;
+    }
+
+    public void setChefId(int chefId) {
+        this.chefId = chefId;
     }
 
     public PieceMaison getSpecialite() {
