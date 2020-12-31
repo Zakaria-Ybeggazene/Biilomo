@@ -1,3 +1,5 @@
+package source;
+
 import java.util.HashMap;
 
 public class Meuble {
@@ -13,6 +15,7 @@ public class Meuble {
     private final String nom;
     /**
      * La piece de la maison associee a ce meuble.
+     *
      * @see PieceMaison
      */
     private final PieceMaison pieceMaison;
@@ -23,16 +26,18 @@ public class Meuble {
     /**
      * Une <code>HashMap</code> des listes de lots necessaires a la construction d'un meuble
      * avec pour couple (cle, valeur) = (nom, lotID)
+     *
      * @see Lot
      */
     private final HashMap<String, Integer> listeLots;
 
     /**
      * Constructeur de la classe <code>Meuble</code>.
-     * @param nom le nom d'un meuble
-     * @param pieceMaison le nom d'une piece de la maison
+     *
+     * @param nom               le nom d'un meuble
+     * @param pieceMaison       le nom d'une piece de la maison
      * @param dureeConstruction la duree de construction d'un meuble
-     * @param listeLots la liste des lots necessaires a la construction d'un meuble
+     * @param listeLots         la liste des lots necessaires a la construction d'un meuble
      * @see PieceMaison
      */
     public Meuble(String nom, PieceMaison pieceMaison, int dureeConstruction,

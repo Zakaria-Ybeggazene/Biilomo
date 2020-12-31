@@ -1,3 +1,5 @@
+package source;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -91,19 +93,24 @@ public class Simulation {
         }
     }
 
+    /**
+     * Affiche un bilan de la simulation a la fin de cette derniere.
+     *
+     * @param entrepot l'instance de <code>Entrepot</code>
+     */
     private static void afficherBilan(Entrepot entrepot) {
         System.out.println("\u001B[36mBilan :\u001B[0m");
-        System.out.println("Tresorerie finale : "+String.format("%,.2f€", entrepot.getTresorerie()));
-        System.out.println("Salaires totaux : "+String.format("%,.2f€", entrepot.getSalairesTotaux()));
-        System.out.println("Somme des prix des meubles construits : "+String.format("%,.2f€", entrepot.getTotalPrixMeubles()));
-        System.out.println("Balance : "+ String.format("%,.2f€", (entrepot.getTotalPrixMeubles() - entrepot.getSalairesTotaux())));
-        System.out.println("# consignes nouveau lot : "+nombreConsignesNouveauLot);
-        System.out.println("# lots recus : "+nombreLotsRecus);
-        System.out.println("# lots refuses : "+nombreLotsRefuses);
-        System.out.println("# commandes meuble recues : "+nombreCommandesMeubleRecues);
-        System.out.println("# commandes meuble acceptees : "+ nombreCommandesMeubleAcceptees);
-        System.out.println("# recrutements : "+nombreRecrutements);
-        System.out.println("# licenciement : "+nombreLicenciements);
+        System.out.println("Tresorerie finale : " + String.format("%,.2f€", entrepot.getTresorerie()));
+        System.out.println("Salaires totaux : " + String.format("%,.2f€", entrepot.getSalairesTotaux()));
+        System.out.println("Somme des prix des meubles construits : " + String.format("%,.2f€", entrepot.getTotalPrixMeubles()));
+        System.out.println("Balance : " + String.format("%,.2f€", (entrepot.getTotalPrixMeubles() - entrepot.getSalairesTotaux())));
+        System.out.println("# consignes nouveau lot : " + nombreConsignesNouveauLot);
+        System.out.println("# lots recus : " + nombreLotsRecus);
+        System.out.println("# lots refuses : " + nombreLotsRefuses);
+        System.out.println("# commandes meuble recues : " + nombreCommandesMeubleRecues);
+        System.out.println("# commandes meuble acceptees : " + nombreCommandesMeubleAcceptees);
+        System.out.println("# recrutements  : " + nombreRecrutements);
+        System.out.println("# licenciements : " + nombreLicenciements);
         System.out.println("---------------------------------------------------------------------");
     }
 
