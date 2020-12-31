@@ -1,3 +1,5 @@
+package main;
+
 public class Ouvrier extends Personnel {
     /**
      * L'identifiant du chef associe a l'ouvrier

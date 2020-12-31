@@ -1,4 +1,5 @@
-import java.util.AbstractMap.SimpleEntry;
+package main;
+
 import java.util.HashMap;
 
 public class Meuble {
