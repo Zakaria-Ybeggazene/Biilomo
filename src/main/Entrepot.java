@@ -1,3 +1,5 @@
+package main;
+
 import java.util.*;
 
 public class Entrepot {
@@ -78,22 +80,15 @@ public class Entrepot {
         throw new IllegalStateException("\u001B[31mAucune equipe n'est disponible\u001B[0m");
     }
 
-    /**
-     * Retourne la liste des chefs d'equipe
-     * @return un objet de type <code>ArrayList</code>
-     */
-    public ArrayList<ChefEquipe> getChefsEquipe() {
-        return chefsEquipe;
-    }
 
     public Rangee getRangee(int idRangee) {
         return tabRangees[idRangee];
     }
 
+
     /** Affiche la <code>tresorerie</code> de l'<code>entrepot</code> et les <code>lots</code> contenus
      *  dans toutes les <code>rangees</code>.
      * @author Zakaria Ybeggazene
-     * @version 1.0
      */
     public void inventaire() {
         System.out.println("---------------------------------------------------------------");
@@ -117,9 +112,9 @@ public class Entrepot {
         System.out.println("---------------------------------------------------------------");
     }
 
+
     /** Appelee a la fin de chaque pas de temps pour payer tout le <code>personnel</code>.
      * @author Zakaria Ybeggazene
-     * @version 1.0
      */
     public void payerPersonnel() {
         for (ChefEquipe chef: chefsEquipe) {
@@ -136,7 +131,6 @@ public class Entrepot {
      * @return objet de type <code>Personnel</code> qui est le premier membre du personnel pouvant
      * gerer les stocks, <code>null</code> sinon.
      * @author Zakaria Ybeggazene
-     * @version 1.0
      * @see #chefsEquipe
      * @see #recevoirLot(Lot)
      * @see Personnel
@@ -170,7 +164,6 @@ public class Entrepot {
      * @return objet de type <code>Personnel</code> qui est le premier membre du personnel pouvant
      * monter un meuble de type <code>specialite</code>, <code>null</code> sinon.
      * @author Zakaria Ybeggazene
-     * @version 1.0
      * @see #chefsEquipe
      * @see #monterMeuble(Meuble)
      * @see Personnel
@@ -203,7 +196,6 @@ public class Entrepot {
      * s'il y a de l'espace contigu et du personnel.
      * @param lot le nouveau <code>lot</code> a receptionner
      * @author Zakaria Ybeggazene
-     * @version 1.0
      * @see #chefsEquipe
      * @see #tabRangees
      * @see #persoStockDispo()

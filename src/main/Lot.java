@@ -1,3 +1,5 @@
+package main;
+
 public class Lot {
     private static int last_id = 0;
 

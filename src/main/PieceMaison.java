@@ -1,3 +1,5 @@
+package main;
+
 public enum PieceMaison {
     CUISINE("CUISINE"),
     CHAMBRE("CHAMBRE"),

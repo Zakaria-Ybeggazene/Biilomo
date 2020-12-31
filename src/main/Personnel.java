@@ -1,3 +1,5 @@
+package main;
+
 public abstract class Personnel {
     /**
      * Un identifiant de depart servant a etablir les identifiants de tous les membres du personnel par incrementation
