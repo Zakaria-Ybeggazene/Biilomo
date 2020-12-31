@@ -1,5 +1,7 @@
-import main.Lot;
-import main.Rangee;
+package test;
+
+import source.Lot;
+import source.Rangee;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

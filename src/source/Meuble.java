@@ -1,45 +1,48 @@
-package main;
+package source;
 
 import java.util.HashMap;
 
 public class Meuble {
-    private static int last_id = 0;
+    private static int next_id = 0;
 
     /**
      * Le numero d'identifiant du meuble.
      */
-    private int meubleId;
+    private final int meubleId;
     /**
      * Le nom du meuble, qui represente egalement son type. Exemple: "Table"
      */
-    private String nom;
+    private final String nom;
     /**
      * La piece de la maison associee a ce meuble.
+     *
      * @see PieceMaison
      */
-    private PieceMaison pieceMaison;
+    private final PieceMaison pieceMaison;
     /**
      * La duree de construction du meuble.
      */
-    private int dureeConstruction;
+    private final int dureeConstruction;
     /**
      * Une <code>HashMap</code> des listes de lots necessaires a la construction d'un meuble
      * avec pour couple (cle, valeur) = (nom, lotID)
+     *
      * @see Lot
      */
-    private HashMap<String, Integer> listeLots;
+    private final HashMap<String, Integer> listeLots;
 
     /**
      * Constructeur de la classe <code>Meuble</code>.
-     * @param nom le nom d'un meuble
-     * @param pieceMaison le nom d'une piece de la maison
+     *
+     * @param nom               le nom d'un meuble
+     * @param pieceMaison       le nom d'une piece de la maison
      * @param dureeConstruction la duree de construction d'un meuble
-     * @param listeLots la liste des lots necessaires a la construction d'un meuble
+     * @param listeLots         la liste des lots necessaires a la construction d'un meuble
      * @see PieceMaison
      */
     public Meuble(String nom, PieceMaison pieceMaison, int dureeConstruction,
                   HashMap<String, Integer> listeLots) {
-        this.meubleId = last_id++;
+        this.meubleId = next_id++;
         this.nom = nom;
         this.pieceMaison = pieceMaison;
         this.dureeConstruction = dureeConstruction;

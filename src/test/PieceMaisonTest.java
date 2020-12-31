@@ -1,9 +1,9 @@
 package test;
 
-import main.PieceMaison;
+import source.PieceMaison;
 import org.junit.jupiter.api.Test;
 
-import static main.PieceMaison.*;
+import static source.PieceMaison.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PieceMaisonTest {
