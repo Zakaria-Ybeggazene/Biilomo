@@ -312,7 +312,6 @@ public class Entrepot {
      * dans l'espace contigu suffisant retrouve le plus proche du volume du <code>lot</code> s'il y a du personnel.
      *
      * @param lot le nouveau <code>lot</code> a receptionner
-     * @version 1.0
      * @see #chefsEquipe
      * @see #tabRangees
      * @see #persoStockDispo()

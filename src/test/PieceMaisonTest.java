@@ -1,10 +1,9 @@
-package test;
-
-import source.PieceMaison;
 import org.junit.jupiter.api.Test;
+import source.PieceMaison;
 
-import static source.PieceMaison.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static source.PieceMaison.CHAMBRE;
+import static source.PieceMaison.getPieceWhereNomIs;
 
 class PieceMaisonTest {
 
